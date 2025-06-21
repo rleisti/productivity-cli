@@ -13,3 +13,16 @@ export type ActivityTimesheetEntry = {
   minutes: number;
   notes: string[];
 };
+
+export type ClientTimesheetAggregation = {
+  client: string;
+  minutes: number;
+  minuteIncrements: number[];
+  projects: ProjectTimesheetAggregation[];
+};
+
+export type ProjectTimesheetAggregation = {
+  project: string;
+  minutes: number;
+  minuteIncrements: number[];
+};

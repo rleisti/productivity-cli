@@ -44,6 +44,33 @@ describe("JournalDay", () => {
     ]);
   });
 
+  test("should accept a timesheet entry with no note", () => {
+    const day = JournalDay.read(
+      "2020-01-01",
+      `
+      Timesheet:
+       08:30 MyClient:TheirProject:task
+       09:00 break`,
+    );
+    expect(day.getClients()).toEqual([
+      {
+        client: "MyClient",
+        projects: [
+          {
+            project: "TheirProject",
+            activities: [
+              {
+                activity: "task",
+                minutes: 30,
+                notes: [""],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
+
   test("should accept multiple time sheet entries", () => {
     const day = JournalDay.read(
       "2020-01-01",
