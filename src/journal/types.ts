@@ -11,4 +11,5 @@ export type ProjectTimesheetEntry = {
 export type ActivityTimesheetEntry = {
   activity: string;
   minutes: number;
+  notes: string[];
 };
