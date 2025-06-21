@@ -1,0 +1,4 @@
+A sample journal file for Sunday, January 5, 2020
+
+08:00   ClientA:Sunday:task
+09:00   break

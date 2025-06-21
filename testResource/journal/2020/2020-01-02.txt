@@ -1,4 +1,4 @@
-08:00   ClientA:ProjectB:busy       Did some busy work
-08:30   ClientA:ProjectA:busy
-09:00   ClientB:ProjectC:busy
-09:30   break
+A sample journal file for Thursday, January 2, 2020
+
+08:00   ClientA:Thursday:task
+09:00   break

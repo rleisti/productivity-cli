@@ -1,0 +1,4 @@
+A sample journal file for Tuesday, Dec 31, 2019
+
+08:00   ClientA:Tuesday:task
+09:00   break
