@@ -1,0 +1,6 @@
+A sample journal file for January 1, 2020
+
+The following are timesheet entries:
+
+08:00   ClientA:ProjectA:busy       Did some busy work
+08:30   break

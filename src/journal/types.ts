@@ -28,7 +28,12 @@ export type ProjectTimesheetAggregation = {
 };
 
 export type Day = {
-  year: number,
-  month: number,
-  day: number,
-}
+  year: number;
+  month: number;
+  day: number;
+};
+
+export type Month = {
+  year: number;
+  month: number;
+};
