@@ -26,3 +26,9 @@ export type ProjectTimesheetAggregation = {
   minutes: number;
   minuteIncrements: number[];
 };
+
+export type Day = {
+  year: number,
+  month: number,
+  day: number,
+}
