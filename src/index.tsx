@@ -71,7 +71,9 @@ function showJournalDay(journalDay: JournalDay) {
     return;
   }
 
-  console.log(`${formatMinutes(journalDay.getTotalMinutes())}`);
+  console.log(
+    `Total time spent: ${formatMinutes(journalDay.getTotalMinutes())}`,
+  );
   console.log();
 
   for (const client of clients) {
@@ -79,6 +81,23 @@ function showJournalDay(journalDay: JournalDay) {
       styleText(["bold"], client.client) +
         ` (${formatMinutes(client.minutes)}):`,
     );
+    for (const project of client.projects) {
+      console.log(
+        "\t" +
+          styleText(["bold"], project.project) +
+          ` (${formatMinutes(project.minutes)})`,
+      );
+      for (const activity of project.activities) {
+        console.log(
+          "\t\t" +
+            styleText(["bold"], activity.activity) +
+            ` (${formatMinutes(activity.minutes)})`,
+        );
+        for (const note of activity.notes) {
+          console.log("\t\t\t" + styleText(["italic"], note));
+        }
+      }
+    }
   }
 }
 
