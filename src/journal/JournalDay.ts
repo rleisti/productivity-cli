@@ -141,7 +141,7 @@ export default class JournalDay {
     return this.clients.reduce((a, b) => a + b.minutes, 0);
   }
 
-  private static timeEntryRegex = /^(\d{2}:\d{2})\s+([A-Za-z0-9:]+)\s*(.*)$/;
+  private static timeEntryRegex = /^(\d{2}:\d{2})\s+([A-Za-z0-9_:-]+)\s*(.*)$/;
   private static classificationRegex = /^(.+):(.+):(.+)$/;
 }
 

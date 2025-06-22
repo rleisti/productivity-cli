@@ -126,4 +126,34 @@ describe("JournalDay", () => {
       },
     ]);
   });
+
+  test("should accept special character in activity name", () => {
+    const day = JournalDay.read(
+      "2020-01-01",
+      `
+      Timesheet:
+      08:30 MyClient:TheirProject:task-1_a   Some notes
+      09:00 break
+      `,
+    );
+    expect(day.getClients()).toEqual([
+      {
+        client: "MyClient",
+        minutes: 30,
+        projects: [
+          {
+            project: "TheirProject",
+            minutes: 30,
+            activities: [
+              {
+                activity: "task-1_a",
+                minutes: 30,
+                notes: ["Some notes"],
+              },
+            ],
+          },
+        ],
+      },
+    ]);
+  });
 });
