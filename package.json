@@ -5,6 +5,7 @@
   "main": "index.ts",
   "scripts": {
     "build": "bunx tsc",
+    "dev": "bun run build && bun dist/index.js",
     "lint": "bunx eslint src/**",
     "prettier": "bunx prettier . --check",
     "prettier:fix": "bunx prettier . --write"
@@ -28,5 +29,8 @@
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
     "typescript-eslint": "^8.34.1"
+  },
+  "dependencies": {
+    "yargs": "^18.0.0"
   }
 }

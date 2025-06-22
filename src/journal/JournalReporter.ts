@@ -1,6 +1,6 @@
 import { TimesheetAggregation, TimesheetReport } from "./types";
 
-type JournalReporterConfiguration = {
+export type JournalReporterConfiguration = {
   clients: JournalReporterClientConfiguration[];
 };
 

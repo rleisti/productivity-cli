@@ -1,10 +1,12 @@
 export type ClientTimesheetEntry = {
   client: string;
+  minutes: number;
   projects: ProjectTimesheetEntry[];
 };
 
 export type ProjectTimesheetEntry = {
   project: string;
+  minutes: number;
   activities: ActivityTimesheetEntry[];
 };
 

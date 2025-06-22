@@ -27,6 +27,8 @@ export default class JournalDay {
     const clientMap = new Map<string, ClientTimesheetEntry>();
     const projectMap = new Map<string, ProjectTimesheetEntry>();
     const activityMap = new Map<string, ActivityTimesheetEntry>();
+    let lastClient = undefined;
+    let lastProject = undefined;
     let lastActivity = undefined;
     let clock = 0;
 
@@ -40,10 +42,20 @@ export default class JournalDay {
       const classification = lineMatch[2];
       const note = lineMatch[3];
 
-      if (lastActivity) {
-        lastActivity.minutes += timeStart - clock;
-      }
+      const timeIncrement = timeStart - clock;
       clock = timeStart;
+
+      if (lastClient) {
+        lastClient.minutes += timeIncrement;
+      }
+      if (lastProject) {
+        lastProject.minutes += timeIncrement;
+      }
+      if (lastActivity) {
+        lastActivity.minutes += timeIncrement;
+      }
+      lastClient = undefined;
+      lastProject = undefined;
       lastActivity = undefined;
 
       const classificationMatch = classification.match(
@@ -66,13 +78,21 @@ export default class JournalDay {
               const client =
                 clientMap.get(clientName) ||
                 (() => {
-                  const newClient = { client: clientName, projects: [] };
+                  const newClient = {
+                    client: clientName,
+                    minutes: 0,
+                    projects: [],
+                  };
                   clientMap.set(clientName, newClient);
                   clients.push(newClient);
                   return newClient;
                 })();
 
-              const newProject = { project: projectName, activities: [] };
+              const newProject = {
+                project: projectName,
+                minutes: 0,
+                activities: [],
+              };
               projectMap.set(`${clientName}:${projectName}`, newProject);
               client.projects.push(newProject);
               return newProject;
@@ -92,6 +112,8 @@ export default class JournalDay {
         activity.notes.push(note);
       }
 
+      lastClient = clientMap.get(clientName);
+      lastProject = projectMap.get(`${clientName}:${projectName}`);
       lastActivity = activity;
     }
 
@@ -110,6 +132,13 @@ export default class JournalDay {
    */
   public getClients(): ClientTimesheetEntry[] {
     return this.clients;
+  }
+
+  /**
+   * Return the total number of minutes spent across all clients
+   */
+  public getTotalMinutes(): number {
+    return this.clients.reduce((a, b) => a + b.minutes, 0);
   }
 
   private static timeEntryRegex = /^(\d{2}:\d{2})\s+([A-Za-z0-9:]+)\s*(.*)$/;

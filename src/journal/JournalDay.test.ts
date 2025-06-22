@@ -28,9 +28,11 @@ describe("JournalDay", () => {
     expect(day.getClients()).toEqual([
       {
         client: "MyClient",
+        minutes: 0,
         projects: [
           {
             project: "TheirProject",
+            minutes: 0,
             activities: [
               {
                 activity: "task",
@@ -55,9 +57,11 @@ describe("JournalDay", () => {
     expect(day.getClients()).toEqual([
       {
         client: "MyClient",
+        minutes: 30,
         projects: [
           {
             project: "TheirProject",
+            minutes: 30,
             activities: [
               {
                 activity: "task",
@@ -89,9 +93,11 @@ describe("JournalDay", () => {
     expect(day.getClients()).toEqual([
       {
         client: "MyClient",
+        minutes: 300,
         projects: [
           {
             project: "TheirProject",
+            minutes: 230,
             activities: [
               {
                 activity: "task1",
@@ -107,6 +113,7 @@ describe("JournalDay", () => {
           },
           {
             project: "OtherProject",
+            minutes: 70,
             activities: [
               {
                 activity: "task2",
