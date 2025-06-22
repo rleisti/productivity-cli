@@ -1,5 +1,6 @@
 import JournalDay from "./JournalDay";
 import { styleText } from "node:util";
+import { TimesheetReport } from "./types";
 
 /**
  * Print the details of a single day's timesheet details to the console.
@@ -8,7 +9,7 @@ import { styleText } from "node:util";
  */
 export function printJournalDay(journalDay: JournalDay) {
   console.log(
-    "Detailed journal report for " + styleText(["bold"], journalDay.getDate()),
+    "Detailed report for " + styleText(["bold"], journalDay.getDate()),
   );
   console.log("========================================");
   console.log();
@@ -33,20 +34,56 @@ export function printJournalDay(journalDay: JournalDay) {
     );
     for (const project of client.projects) {
       console.log(
-        "\t" +
+        "    " +
           styleText(["bold"], project.project) +
           ` (${formatMinutes(project.minutes)})`,
       );
       for (const activity of project.activities) {
         console.log(
-          "\t\t" +
+          "        " +
             styleText(["bold"], activity.activity) +
             ` (${formatMinutes(activity.minutes)})`,
         );
         for (const note of activity.notes) {
-          console.log("\t\t\t" + styleText(["italic"], note));
+          console.log("            " + styleText(["italic"], note));
         }
       }
+    }
+  }
+}
+
+export function printJournalReport(report: TimesheetReport) {
+  console.log("Summary report for " + styleText(["bold"], report.range));
+  console.log("========================================");
+  console.log();
+
+  const clients = report.clients;
+  if (clients.length === 0) {
+    console.log(
+      styleText(["italic"], "No journal entries recorded for this period."),
+    );
+    return;
+  }
+
+  for (const client of report.clients) {
+    console.log(
+      styleText(["bold"], client.client) +
+        ` (${formatMinutes(client.actualMinutes)} of ${formatMinutes(client.targetMinutes)}):` +
+        styleText(["italic"], ` rounded: `) +
+        formatMinutes(client.roundedMinutes) +
+        ", " +
+        styleText(["italic"], `period target: `) +
+        formatMinutes(client.periodTargetMinutes),
+    );
+
+    for (const project of client.projects) {
+      console.log(
+        "    " +
+          styleText(["bold"], project.project) +
+          ` (${formatMinutes(project.actualMinutes)}):` +
+          styleText(["italic"], ` rounded: `) +
+          formatMinutes(project.roundedMinutes),
+      );
     }
   }
 }

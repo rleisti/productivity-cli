@@ -17,6 +17,7 @@ export type ActivityTimesheetEntry = {
 };
 
 export type TimesheetAggregation = {
+  range: string;
   clients: ClientTimesheetAggregation[];
   workDaysInPeriod: number;
   workDaysElapsed: number;
@@ -36,6 +37,9 @@ export type ProjectTimesheetAggregation = {
 };
 
 export type TimesheetReport = {
+  /** A description of the reported date range. */
+  range: string;
+
   clients: ClientTimesheetReport[];
 };
 

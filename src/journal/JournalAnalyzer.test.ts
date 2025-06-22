@@ -53,6 +53,7 @@ describe("JournalAnalyzer", () => {
     test("should accept a month with no entries", async () => {
       const aggregation = await analyzer.analyzeMonth({ year: 2019, month: 1 });
       expect(aggregation).toStrictEqual({
+        range: "2019-01",
         clients: [],
         workDaysInPeriod: 23,
         workDaysElapsed: 23,
@@ -62,6 +63,7 @@ describe("JournalAnalyzer", () => {
     test("should process a month with entries", async () => {
       const aggregation = await analyzer.analyzeMonth({ year: 2020, month: 1 });
       expect(aggregation).toStrictEqual({
+        range: "2020-01",
         clients: [
           {
             client: "ClientA",
@@ -108,6 +110,7 @@ describe("JournalAnalyzer", () => {
     test("should accept a week with no entries", async () => {
       const aggregation = await analyzer.analyzeWeek(-1, relativeDay);
       expect(aggregation).toStrictEqual({
+        range: "2019-12-21 to 2019-12-27",
         clients: [],
         workDaysInPeriod: 5,
         workDaysElapsed: 5,
@@ -136,6 +139,7 @@ describe("JournalAnalyzer", () => {
       });
       const aggregation = await analyzer.analyzeWeek(0, relativeDay);
       expect(aggregation).toStrictEqual({
+        range: "2019-12-29 to 2020-01-04",
         clients: [
           {
             client: "ClientA",
@@ -182,6 +186,7 @@ describe("JournalAnalyzer", () => {
   });
 
   const aggregationForFirstWeekOf2020 = {
+    range: "2019-12-28 to 2020-01-03",
     clients: [
       {
         client: "ClientA",

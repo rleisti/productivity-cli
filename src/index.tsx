@@ -3,8 +3,8 @@
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import JournalService from "./journal/JournalService";
-import { printJournalDay } from "./journal/printing";
-import { Day } from "./journal/types";
+import { printJournalDay, printJournalReport } from "./journal/printing";
+import { Day, Month } from "./journal/types";
 
 (async () => {
   await yargs()
@@ -34,6 +34,16 @@ import { Day } from "./journal/types";
       },
       async (args) => reportJournalForDay(args),
     )
+    .command(
+      "month <month>",
+      "Generate a detailed report for a given month",
+      (yargs) => {
+        yargs.positional("month", {
+          describe: "The month in format YYYY-MM",
+        });
+      },
+      async (args) => reportJournalForMonth(args),
+    )
     .help()
     .parse(hideBin(process.argv));
 
@@ -46,6 +56,10 @@ interface Arguments {
 
 interface DayArguments extends Arguments {
   day: string;
+}
+
+interface MonthArguments extends Arguments {
+  month: string;
 }
 
 /**
@@ -72,6 +86,12 @@ async function reportJournalForDay(args: Arguments) {
   const { day } = args as DayArguments;
   const data = await createJournalService(args).reportDay(parseDay(day));
   printJournalDay(data);
+}
+
+async function reportJournalForMonth(args: Arguments) {
+  const { month } = args as MonthArguments;
+  const data = await createJournalService(args).reportMonth(parseMonth(month));
+  printJournalReport(data);
 }
 
 /**
@@ -104,5 +124,17 @@ function parseDay(day: string): Day {
     year: parseInt(match[1]),
     month: parseInt(match[2]),
     day: parseInt(match[3]),
+  };
+}
+
+function parseMonth(month: string): Month {
+  const monthRegex = /^(\d{4})-(\d{2})$/;
+  const match = month.match(monthRegex);
+  if (!match) {
+    throw new Error(`Invalid month: ${month}`);
+  }
+  return {
+    year: parseInt(match[1]),
+    month: parseInt(match[2]),
   };
 }

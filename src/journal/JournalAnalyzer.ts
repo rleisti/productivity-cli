@@ -1,6 +1,6 @@
 import JournalDay from "./JournalDay";
 import { Day, Month, TimesheetAggregation } from "./types";
-import { formatDay } from "./util";
+import { dateToDay, formatDay, formatDayRange, formatMonth } from "./util";
 import * as path from "node:path";
 import * as fs from "node:fs";
 import JournalDayRange from "./JournalDayRange";
@@ -62,6 +62,7 @@ export default class JournalAnalyzer {
   public async analyzeMonth(month: Month): Promise<TimesheetAggregation> {
     const startDate = new Date(month.year, month.month - 1);
     return this.analyzeDateRange(
+      formatMonth(month),
       startDate,
       (date) => date.getMonth() === month.month - 1,
     );
@@ -97,6 +98,7 @@ export default class JournalAnalyzer {
         ((relativeToDate.getDay() - startOfWeek + 7) % 7),
     );
     return this.analyzeDateRange(
+      formatDayRange(dateToDay(startDate), 6),
       startDate,
       (date) =>
         date.getDate() == startDate.getDate() || date.getDay() !== startOfWeek,
@@ -104,6 +106,7 @@ export default class JournalAnalyzer {
   }
 
   private async analyzeDateRange(
+    range: string,
     startDate: Date,
     condition: (date: Date) => boolean,
   ): Promise<TimesheetAggregation> {
@@ -141,6 +144,7 @@ export default class JournalAnalyzer {
 
     const journalDayRange = new JournalDayRange(journalDays);
     return {
+      range,
       clients: journalDayRange.aggregate(),
       workDaysInPeriod: workDayCount,
       workDaysElapsed: workDayElapsedCount,

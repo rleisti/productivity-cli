@@ -71,7 +71,7 @@ export default class JournalReporter {
       };
     });
 
-    return { clients };
+    return { range: aggregation.range, clients };
   }
 
   private getClientConfig(client: string): MaterializedClientConfiguration {

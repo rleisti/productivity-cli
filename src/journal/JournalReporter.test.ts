@@ -29,17 +29,19 @@ describe("JournalReporter", () => {
   describe("report", () => {
     test("should accept empty data", () => {
       const report = reporter.report({
+        range: "empty",
         clients: [],
         workDaysInPeriod: 0,
         workDaysElapsed: 0,
       });
-      expect(report).toStrictEqual({ clients: [] });
+      expect(report).toStrictEqual({ range: "empty", clients: [] });
     });
 
     test("should accept real data", async () => {
       const data = await analyzer.analyzeMonth({ year: 2021, month: 1 });
       const report = reporter.report(data);
       expect(report).toStrictEqual({
+        range: "2021-01",
         clients: [
           {
             client: "DefaultClient",
