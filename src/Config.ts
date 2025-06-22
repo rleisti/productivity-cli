@@ -7,13 +7,16 @@ import * as fs from "node:fs";
  */
 export default class Config {
   public readonly journalBasePath: string;
+  public readonly startOfWeek: number;
   public readonly clients: JournalReporterClientConfiguration[];
 
   constructor(
     journalBasePath: string,
+    startOfWeek: number,
     clients?: JournalReporterClientConfiguration[],
   ) {
     this.journalBasePath = journalBasePath;
+    this.startOfWeek = startOfWeek;
     this.clients = clients ?? [];
   }
 
@@ -37,6 +40,7 @@ export default class Config {
     const data = toml.parse(content) as ConfigFile;
 
     const journalBasePath = data.journal_path ?? ".";
+    const startOfWeek = mapStartOfWeek(data.start_of_week);
     const clients = [];
 
     if (data.clients) {
@@ -54,7 +58,7 @@ export default class Config {
       }
     }
 
-    return new Config(journalBasePath, clients);
+    return new Config(journalBasePath, startOfWeek, clients);
   }
 
   /**
@@ -68,6 +72,11 @@ export default class Config {
 # In this path should be a directory for each year, and within those
 # are journal files named with the format YYYY-MM-DD.txt
 journal_path = "~/journal"
+
+# The day of the week on which the week starts for reporting purposes.
+# May be on of "saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", or "friday".
+# Defaults to "saturday".
+start_of_week = "saturday"
 
 [clients]
     [clients.a]
@@ -84,15 +93,26 @@ journal_path = "~/journal"
         # One of "none", "round", or "round_up"
         rounding_type = "none"
     `;
-
-    /*
-    return fs.writeFile(path, templateContent, (err) => {
-      if (err) {
-        throw err;
-      }
-    });
-     */
     fs.writeFileSync(path, templateContent);
+  }
+}
+
+function mapStartOfWeek(value?: string): number {
+  switch (value) {
+    case "sunday":
+      return 0;
+    case "monday":
+      return 1;
+    case "tuesday":
+      return 2;
+    case "wednesday":
+      return 3;
+    case "thursday":
+      return 4;
+    case "friday":
+      return 5;
+    default:
+      return 6;
   }
 }
 
@@ -109,6 +129,7 @@ function mapRoundingType(value: string): "none" | "round" | "roundUp" {
 
 type ConfigFile = {
   journal_path?: string;
+  start_of_week?: string;
   clients?: ClientConfig[];
 };
 

@@ -1,4 +1,5 @@
 journal_path = "~/journal"
+start_of_week = "sunday"
 
 [clients]
     [clients.a]

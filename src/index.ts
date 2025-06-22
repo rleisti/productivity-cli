@@ -160,6 +160,7 @@ async function createJournalService(args: Arguments): Promise<JournalService> {
   return new JournalService({
     analyzer: {
       basePath: args.journalPath ?? config.journalBasePath,
+      startOfWeek: config.startOfWeek,
       workDayClassifier: (day) => {
         const date = new Date(day.year, day.month - 1, day.day);
         return date.getDay() !== 0 && date.getDay() !== 6;
