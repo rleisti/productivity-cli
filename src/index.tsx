@@ -35,8 +35,21 @@ import { Day, Month } from "./journal/types";
       async (args) => reportJournalForDay(args),
     )
     .command(
+      "week [offset]",
+      "Generate a summary report for a given week",
+      (yargs) => {
+        yargs.positional("offset", {
+          describe:
+            "The week offset from this week. 0 is this week, -1 is last week, etc. Defaults to 0",
+          default: 0,
+          type: "number",
+        });
+      },
+      async (args) => reportJournalForWeek(args),
+    )
+    .command(
       "month <month>",
-      "Generate a detailed report for a given month",
+      "Generate a summary report for a given month",
       (yargs) => {
         yargs.positional("month", {
           describe: "The month in format YYYY-MM",
@@ -56,6 +69,10 @@ interface Arguments {
 
 interface DayArguments extends Arguments {
   day: string;
+}
+
+interface WeekArguments extends Arguments {
+  offset: number;
 }
 
 interface MonthArguments extends Arguments {
@@ -86,6 +103,12 @@ async function reportJournalForDay(args: Arguments) {
   const { day } = args as DayArguments;
   const data = await createJournalService(args).reportDay(parseDay(day));
   printJournalDay(data);
+}
+
+async function reportJournalForWeek(args: Arguments) {
+  const { offset } = args as WeekArguments;
+  const data = await createJournalService(args).reportWeek(offset);
+  printJournalReport(data);
 }
 
 async function reportJournalForMonth(args: Arguments) {
