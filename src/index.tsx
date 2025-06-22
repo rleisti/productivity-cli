@@ -1,3 +1,5 @@
+#! /usr/bin/env node
+
 import { styleText } from "node:util";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
