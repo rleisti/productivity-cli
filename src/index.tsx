@@ -4,6 +4,7 @@ import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import JournalService from "./journal/JournalService";
 import { printJournalDay } from "./journal/printing";
+import { Day } from "./journal/types";
 
 (async () => {
   await yargs()
@@ -21,7 +22,17 @@ import { printJournalDay } from "./journal/printing";
       "today",
       "Generate a detailed report for today",
       () => {},
-      (args) => reportJournalForToday(args),
+      async (args) => reportJournalForToday(args),
+    )
+    .command(
+      "day <day>",
+      "Generate a detailed report for a given day",
+      (yargs) => {
+        yargs.positional("day", {
+          describe: "The date in format YYYY-MM-DD",
+        });
+      },
+      async (args) => reportJournalForDay(args),
     )
     .help()
     .parse(hideBin(process.argv));
@@ -29,9 +40,13 @@ import { printJournalDay } from "./journal/printing";
   process.exit(0);
 })();
 
-type Arguments = {
+interface Arguments {
   journalPath: string;
-};
+}
+
+interface DayArguments extends Arguments {
+  day: string;
+}
 
 /**
  * Produce a detailed timesheet report for the current day
@@ -45,6 +60,17 @@ async function reportJournalForToday(args: Arguments) {
     month: today.getMonth() + 1,
     day: today.getDate(),
   });
+  printJournalDay(data);
+}
+
+/**
+ * Product a detailed timesheet report for a given day.
+ *
+ * @param args command line arguments.
+ */
+async function reportJournalForDay(args: Arguments) {
+  const { day } = args as DayArguments;
+  const data = await createJournalService(args).reportDay(parseDay(day));
   printJournalDay(data);
 }
 
@@ -66,4 +92,17 @@ function createJournalService(args: Arguments): JournalService {
       clients: [],
     },
   });
+}
+
+function parseDay(day: string): Day {
+  const dayRegex = /^(\d{4})-(\d{2})-(\d{2})$/;
+  const match = day.match(dayRegex);
+  if (!match) {
+    throw new Error(`Invalid day: ${day}`);
+  }
+  return {
+    year: parseInt(match[1]),
+    month: parseInt(match[2]),
+    day: parseInt(match[3]),
+  };
 }
