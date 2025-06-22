@@ -1,0 +1,9 @@
+Timesheet
+========================================
+
+09:00   ClientA:ProjectA:task1  Work completed on task 1
+09:55   ClientA:ProjectA:task2  Progress on task 2
+10:15   break
+10:45   ClientA:ProjectA:task2  Completion of task 2
+11:49   break
+13:05   ClientB:ProjectA:task

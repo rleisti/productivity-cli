@@ -1,0 +1,9 @@
+journal_path = "testResource/smoke/journal"
+
+[clients]
+    [clients.a]
+        id = "ClientA"
+        target_hours_per_day = 4
+        rounding_increment = 15
+        rounding_type = "roundUp"
+    
