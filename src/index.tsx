@@ -83,7 +83,7 @@ import Config from "./Config";
 
 interface Arguments {
   config: string;
-  journalPath: string;
+  journalPath?: string;
 }
 
 interface InitArguments extends Arguments {
