@@ -1,0 +1,8 @@
+#! /bin/sh
+
+set -e
+
+bun run build
+bun lint
+bun prettier
+bun test

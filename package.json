@@ -10,7 +10,8 @@
     "link": "bun run build && npm link",
     "lint": "bunx eslint src/**",
     "prettier": "bunx prettier . --check",
-    "prettier:fix": "bunx prettier . --write"
+    "prettier:fix": "bunx prettier . --write",
+    "setup:git": "chmod +x githooks/* && cp githooks/* .git/hooks/"
   },
   "repository": {
     "type": "git",
