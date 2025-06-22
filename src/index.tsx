@@ -157,7 +157,6 @@ async function reportJournalForMonth(args: Arguments) {
  */
 async function createJournalService(args: Arguments): Promise<JournalService> {
   const config = await Config.load(args.config);
-  console.log("Config", config);
 
   return new JournalService({
     analyzer: {
