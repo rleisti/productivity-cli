@@ -21,7 +21,6 @@ import Config from "./Config";
       },
       journalPath: {
         type: "string",
-        default: ".",
         description: "Path to the journal files.",
         alias: "j",
       },
