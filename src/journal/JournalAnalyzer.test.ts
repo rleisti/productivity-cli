@@ -30,9 +30,11 @@ describe("JournalAnalyzer", () => {
       expect(journalDay.getClients()).toStrictEqual([
         {
           client: "ClientA",
+          minutes: 60,
           projects: [
             {
               project: "Wednesday",
+              minutes: 60,
               activities: [
                 {
                   activity: "task",
