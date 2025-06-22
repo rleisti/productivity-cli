@@ -9,7 +9,7 @@ describe("Config", () => {
   test("should load a configuration file with all configurable options", async () => {
     const config = await Config.load("testResource/config/all_options.toml");
     expect(config).toEqual(
-      new Config("~/journal", 0, [
+      new Config("~/journal", 0, "nova_scotia", [
         {
           client: "ClientA",
           targetHoursPerDay: 7,

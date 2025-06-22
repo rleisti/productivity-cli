@@ -1,5 +1,6 @@
 journal_path = "~/journal"
 start_of_week = "sunday"
+work_days = "nova_scotia"
 
 [clients]
     [clients.a]

@@ -8,15 +8,18 @@ import * as fs from "node:fs";
 export default class Config {
   public readonly journalBasePath: string;
   public readonly startOfWeek: number;
+  public readonly workDayClassifierName?: string;
   public readonly clients: JournalReporterClientConfiguration[];
 
   constructor(
     journalBasePath: string,
     startOfWeek: number,
+    workDayClassifierName?: string,
     clients?: JournalReporterClientConfiguration[],
   ) {
     this.journalBasePath = journalBasePath;
     this.startOfWeek = startOfWeek;
+    this.workDayClassifierName = workDayClassifierName;
     this.clients = clients ?? [];
   }
 
@@ -41,6 +44,7 @@ export default class Config {
 
     const journalBasePath = data.journal_path ?? ".";
     const startOfWeek = mapStartOfWeek(data.start_of_week);
+    const workDayClassifierName = data.work_days;
     const clients = [];
 
     if (data.clients) {
@@ -58,7 +62,12 @@ export default class Config {
       }
     }
 
-    return new Config(journalBasePath, startOfWeek, clients);
+    return new Config(
+      journalBasePath,
+      startOfWeek,
+      workDayClassifierName,
+      clients,
+    );
   }
 
   /**
@@ -77,6 +86,12 @@ journal_path = "~/journal"
 # May be on of "saturday", "sunday", "monday", "tuesday", "wednesday", "thursday", or "friday".
 # Defaults to "saturday".
 start_of_week = "saturday"
+
+# Specify the work-day classifier to use for reporting purposes.
+# By default, or if an unknown name is specified, then all weekdays are considered work days.
+# Other special classifiers includes:
+#    - "nova_scotia" - Classifies all weekdays as work days, except for Nova Scotia paid holidays.
+work_days = "general"
 
 [clients]
     [clients.a]
@@ -130,6 +145,7 @@ function mapRoundingType(value: string): "none" | "round" | "roundUp" {
 type ConfigFile = {
   journal_path?: string;
   start_of_week?: string;
+  work_days?: string;
   clients?: ClientConfig[];
 };
 

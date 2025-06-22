@@ -6,6 +6,7 @@ import JournalService from "./journal/JournalService";
 import { printJournalDay, printJournalReport } from "./journal/printing";
 import { Day, Month } from "./journal/types";
 import Config from "./Config";
+import { getWorkDayClassifier } from "./journal/workDay";
 
 (async () => {
   await yargs()
@@ -161,10 +162,9 @@ async function createJournalService(args: Arguments): Promise<JournalService> {
     analyzer: {
       basePath: args.journalPath ?? config.journalBasePath,
       startOfWeek: config.startOfWeek,
-      workDayClassifier: (day) => {
-        const date = new Date(day.year, day.month - 1, day.day);
-        return date.getDay() !== 0 && date.getDay() !== 6;
-      },
+      workDayClassifier: getWorkDayClassifier(
+        config.workDayClassifierName ?? "default",
+      ),
     },
     reporter: {
       clients: config.clients,
