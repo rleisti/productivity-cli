@@ -1,0 +1,17 @@
+journal_path = "~/journal"
+
+[clients]
+    [clients.a]
+        id = "ClientA"
+        target_hours_per_day = 7
+        rounding_increment = 15
+        rounding_type = "round_up"
+    [clients.b]
+        id = "ClientB"
+        rounding_increment = 30
+        rounding_type = "round"
+    [clients.c]
+        id = "ClientC"
+        roundin_type = "none"
+    [clients.d]
+        id = "ClientD"

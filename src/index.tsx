@@ -5,12 +5,20 @@ import { hideBin } from "yargs/helpers";
 import JournalService from "./journal/JournalService";
 import { printJournalDay, printJournalReport } from "./journal/printing";
 import { Day, Month } from "./journal/types";
+import Config from "./Config";
 
 (async () => {
   await yargs()
     .scriptName("productivity-cli")
     .usage("$0 <cmd> [args]")
     .options({
+      config: {
+        type: "string",
+        default: ".productivity-cli.toml",
+        description:
+          "Path to a configuration file. Defaults to .productivity-cli.toml",
+        alias: "c",
+      },
       journalPath: {
         type: "string",
         default: ".",
@@ -18,6 +26,17 @@ import { Day, Month } from "./journal/types";
         alias: "j",
       },
     })
+    .command(
+      "init [path]",
+      "Generate a template configuration file",
+      (yargs) => {
+        yargs.positional("path", {
+          describe: "Path to the new configuration file",
+          default: ".productivity-cli.toml",
+        });
+      },
+      async (args) => init(args),
+    )
     .command(
       "today",
       "Generate a detailed report for today",
@@ -55,7 +74,7 @@ import { Day, Month } from "./journal/types";
           describe: "The month in format YYYY-MM",
         });
       },
-      async (args) => reportJournalForMonth(args),
+      (args) => reportJournalForMonth(args),
     )
     .help()
     .parse(hideBin(process.argv));
@@ -64,7 +83,12 @@ import { Day, Month } from "./journal/types";
 })();
 
 interface Arguments {
+  config: string;
   journalPath: string;
+}
+
+interface InitArguments extends Arguments {
+  path: string;
 }
 
 interface DayArguments extends Arguments {
@@ -79,6 +103,11 @@ interface MonthArguments extends Arguments {
   month: string;
 }
 
+function init(args: Arguments) {
+  const { path } = args as InitArguments;
+  Config.init(path);
+}
+
 /**
  * Produce a detailed timesheet report for the current day
  *
@@ -86,7 +115,8 @@ interface MonthArguments extends Arguments {
  */
 async function reportJournalForToday(args: Arguments) {
   const today = new Date();
-  const data = await createJournalService(args).reportDay({
+  const journalService = await createJournalService(args);
+  const data = await journalService.reportDay({
     year: today.getFullYear(),
     month: today.getMonth() + 1,
     day: today.getDate(),
@@ -101,19 +131,22 @@ async function reportJournalForToday(args: Arguments) {
  */
 async function reportJournalForDay(args: Arguments) {
   const { day } = args as DayArguments;
-  const data = await createJournalService(args).reportDay(parseDay(day));
+  const journalService = await createJournalService(args);
+  const data = await journalService.reportDay(parseDay(day));
   printJournalDay(data);
 }
 
 async function reportJournalForWeek(args: Arguments) {
   const { offset } = args as WeekArguments;
-  const data = await createJournalService(args).reportWeek(offset);
+  const journalService = await createJournalService(args);
+  const data = await journalService.reportWeek(offset);
   printJournalReport(data);
 }
 
 async function reportJournalForMonth(args: Arguments) {
   const { month } = args as MonthArguments;
-  const data = await createJournalService(args).reportMonth(parseMonth(month));
+  const journalService = await createJournalService(args);
+  const data = await journalService.reportMonth(parseMonth(month));
   printJournalReport(data);
 }
 
@@ -122,17 +155,20 @@ async function reportJournalForMonth(args: Arguments) {
  *
  * @param args command line arguments.
  */
-function createJournalService(args: Arguments): JournalService {
+async function createJournalService(args: Arguments): Promise<JournalService> {
+  const config = await Config.load(args.config);
+  console.log("Config", config);
+
   return new JournalService({
     analyzer: {
-      basePath: args.journalPath,
+      basePath: args.journalPath ?? config.journalBasePath,
       workDayClassifier: (day) => {
         const date = new Date(day.year, day.month - 1, day.day);
         return date.getDay() !== 0 && date.getDay() !== 6;
       },
     },
     reporter: {
-      clients: [],
+      clients: config.clients,
     },
   });
 }

@@ -4,7 +4,7 @@ export type JournalReporterConfiguration = {
   clients: JournalReporterClientConfiguration[];
 };
 
-type JournalReporterClientConfiguration = {
+export type JournalReporterClientConfiguration = {
   /** The client identifier. */
   client: string;
 
