@@ -1,8 +1,13 @@
 import JournalAnalyzer from "./JournalAnalyzer";
+import { Day } from "./types";
 
 describe("JournalAnalyzer", () => {
   const basePath = "./testResource/journal";
-  const analyzer = new JournalAnalyzer({ basePath });
+  const workDayClassifier = (day: Day) => {
+    const date = new Date(day.year, day.month - 1, day.day);
+    return date.getDay() !== 0 && date.getDay() !== 6;
+  };
+  const analyzer = new JournalAnalyzer({ basePath, workDayClassifier });
 
   describe("analyzeDay", () => {
     test("should accept a non-existent day", async () => {
@@ -45,45 +50,53 @@ describe("JournalAnalyzer", () => {
   describe("analyzeMonth", () => {
     test("should accept a month with no entries", async () => {
       const aggregation = await analyzer.analyzeMonth({ year: 2019, month: 1 });
-      expect(aggregation).toStrictEqual([]);
+      expect(aggregation).toStrictEqual({
+        clients: [],
+        workDaysInPeriod: 23,
+        workDaysElapsed: 23,
+      });
     });
 
     test("should process a month with entries", async () => {
       const aggregation = await analyzer.analyzeMonth({ year: 2020, month: 1 });
-      expect(aggregation).toStrictEqual([
-        {
-          client: "ClientA",
-          minutes: 300,
-          minuteIncrements: [60, 60, 60, 60, 60],
-          projects: [
-            {
-              project: "Wednesday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Thursday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Friday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Saturday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Sunday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-          ],
-        },
-      ]);
+      expect(aggregation).toStrictEqual({
+        clients: [
+          {
+            client: "ClientA",
+            minutes: 300,
+            minuteIncrements: [60, 60, 60, 60, 60],
+            projects: [
+              {
+                project: "Wednesday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Thursday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Friday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Saturday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Sunday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+            ],
+          },
+        ],
+        workDaysInPeriod: 23,
+        workDaysElapsed: 23,
+      });
     });
   });
 
@@ -92,7 +105,11 @@ describe("JournalAnalyzer", () => {
 
     test("should accept a week with no entries", async () => {
       const aggregation = await analyzer.analyzeWeek(-1, relativeDay);
-      expect(aggregation).toStrictEqual([]);
+      expect(aggregation).toStrictEqual({
+        clients: [],
+        workDaysInPeriod: 5,
+        workDaysElapsed: 5,
+      });
     });
 
     test("should accept a week with entries", async () => {
@@ -110,82 +127,94 @@ describe("JournalAnalyzer", () => {
     });
 
     test("should determine the beginning of week based on provided configuration", async () => {
-      const analyzer = new JournalAnalyzer({ basePath, startOfWeek: 0 });
+      const analyzer = new JournalAnalyzer({
+        basePath,
+        workDayClassifier,
+        startOfWeek: 0,
+      });
       const aggregation = await analyzer.analyzeWeek(0, relativeDay);
-      expect(aggregation).toStrictEqual([
-        {
-          client: "ClientA",
-          minutes: 360,
-          minuteIncrements: [60, 60, 60, 60, 60, 60],
-          projects: [
-            {
-              project: "Monday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Tuesday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Wednesday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Thursday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Friday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-            {
-              project: "Saturday",
-              minutes: 60,
-              minuteIncrements: [60],
-            },
-          ],
-        },
-      ]);
+      expect(aggregation).toStrictEqual({
+        clients: [
+          {
+            client: "ClientA",
+            minutes: 360,
+            minuteIncrements: [60, 60, 60, 60, 60, 60],
+            projects: [
+              {
+                project: "Monday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Tuesday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Wednesday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Thursday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Friday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+              {
+                project: "Saturday",
+                minutes: 60,
+                minuteIncrements: [60],
+              },
+            ],
+          },
+        ],
+        workDaysInPeriod: 5,
+        workDaysElapsed: 5,
+      });
     });
   });
 
-  const aggregationForFirstWeekOf2020 = [
-    {
-      client: "ClientA",
-      minutes: 300,
-      minuteIncrements: [60, 60, 60, 60, 60],
-      projects: [
-        {
-          project: "Monday",
-          minutes: 60,
-          minuteIncrements: [60],
-        },
-        {
-          project: "Tuesday",
-          minutes: 60,
-          minuteIncrements: [60],
-        },
-        {
-          project: "Wednesday",
-          minutes: 60,
-          minuteIncrements: [60],
-        },
-        {
-          project: "Thursday",
-          minutes: 60,
-          minuteIncrements: [60],
-        },
-        {
-          project: "Friday",
-          minutes: 60,
-          minuteIncrements: [60],
-        },
-      ],
-    },
-  ];
+  const aggregationForFirstWeekOf2020 = {
+    clients: [
+      {
+        client: "ClientA",
+        minutes: 300,
+        minuteIncrements: [60, 60, 60, 60, 60],
+        projects: [
+          {
+            project: "Monday",
+            minutes: 60,
+            minuteIncrements: [60],
+          },
+          {
+            project: "Tuesday",
+            minutes: 60,
+            minuteIncrements: [60],
+          },
+          {
+            project: "Wednesday",
+            minutes: 60,
+            minuteIncrements: [60],
+          },
+          {
+            project: "Thursday",
+            minutes: 60,
+            minuteIncrements: [60],
+          },
+          {
+            project: "Friday",
+            minutes: 60,
+            minuteIncrements: [60],
+          },
+        ],
+      },
+    ],
+    workDaysInPeriod: 5,
+    workDaysElapsed: 5,
+  };
 });

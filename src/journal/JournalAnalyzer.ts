@@ -1,16 +1,19 @@
 import JournalDay from "./JournalDay";
-import { ClientTimesheetAggregation, Day, Month } from "./types";
+import { Day, Month, TimesheetAggregation } from "./types";
 import { formatDay } from "./util";
 import * as path from "node:path";
 import * as fs from "node:fs";
 import JournalDayRange from "./JournalDayRange";
 
-type JournalAnalyzerConfiguration = {
+export type JournalAnalyzerConfiguration = {
   /** The base path of the journal files. */
   basePath: string;
 
   /** The beginning of the work week. 0 represents Sunday. The default value is Saturday. */
   startOfWeek?: number;
+
+  /** A classification system to determine which days are considered working days. */
+  workDayClassifier: (day: Day) => boolean;
 };
 
 /**
@@ -56,9 +59,7 @@ export default class JournalAnalyzer {
    *
    * @param month the month to analyze.
    */
-  public async analyzeMonth(
-    month: Month,
-  ): Promise<ClientTimesheetAggregation[]> {
+  public async analyzeMonth(month: Month): Promise<TimesheetAggregation> {
     const startDate = new Date(month.year, month.month - 1);
     return this.analyzeDateRange(
       startDate,
@@ -77,7 +78,7 @@ export default class JournalAnalyzer {
   public async analyzeWeek(
     weekOffset: number = 0,
     relativeTo?: Day,
-  ): Promise<ClientTimesheetAggregation[]> {
+  ): Promise<TimesheetAggregation> {
     const relativeToDay = relativeTo || {
       year: new Date().getFullYear(),
       month: new Date().getMonth() + 1,
@@ -88,8 +89,7 @@ export default class JournalAnalyzer {
       relativeToDay.month - 1,
       relativeToDay.day + weekOffset * 7,
     );
-    const startOfWeek =
-      this.config.startOfWeek != undefined ? this.config.startOfWeek : 6;
+    const startOfWeek = this.config.startOfWeek ?? 6;
     const startDate = new Date(
       relativeToDate.getFullYear(),
       relativeToDate.getMonth(),
@@ -106,16 +106,32 @@ export default class JournalAnalyzer {
   private async analyzeDateRange(
     startDate: Date,
     condition: (date: Date) => boolean,
-  ): Promise<ClientTimesheetAggregation[]> {
+  ): Promise<TimesheetAggregation> {
     const journalDays = [];
+    const now = new Date(
+      new Date().getFullYear(),
+      new Date().getMonth(),
+      new Date().getDate(),
+    ).getTime();
     let currentDate = startDate;
+    let workDayCount = 0;
+    let workDayElapsedCount = 0;
     while (condition(currentDate)) {
-      const journalDay = await this.analyzeDay({
+      const day = {
         year: currentDate.getFullYear(),
         month: currentDate.getMonth() + 1,
         day: currentDate.getDate(),
-      });
+      };
+      const journalDay = await this.analyzeDay(day);
       journalDays.push(journalDay);
+
+      if (this.config.workDayClassifier(day)) {
+        workDayCount++;
+        if (currentDate.getTime() < now) {
+          workDayElapsedCount++;
+        }
+      }
+
       currentDate = new Date(
         currentDate.getFullYear(),
         currentDate.getMonth(),
@@ -124,6 +140,10 @@ export default class JournalAnalyzer {
     }
 
     const journalDayRange = new JournalDayRange(journalDays);
-    return journalDayRange.aggregate();
+    return {
+      clients: journalDayRange.aggregate(),
+      workDaysInPeriod: workDayCount,
+      workDaysElapsed: workDayElapsedCount,
+    };
   }
 }

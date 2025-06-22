@@ -1,0 +1,6 @@
+A sample journal file for Friday, January 1, 2021
+
+08:00   DefaultClient:Project:task
+08:20   RoundUpClient:Project:task
+08:40   RoundClient:Project:task
+09:00   break
