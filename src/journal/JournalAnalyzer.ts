@@ -111,10 +111,10 @@ export default class JournalAnalyzer {
     condition: (date: Date) => boolean,
   ): Promise<TimesheetAggregation> {
     const journalDays = [];
-    const now = new Date(
+    const elapsedBenchmarkDate = new Date(
       new Date().getFullYear(),
       new Date().getMonth(),
-      new Date().getDate(),
+      new Date().getDate() + 1,
     ).getTime();
     let currentDate = startDate;
     let workDayCount = 0;
@@ -130,7 +130,7 @@ export default class JournalAnalyzer {
 
       if (this.config.workDayClassifier(day)) {
         workDayCount++;
-        if (currentDate.getTime() < now) {
+        if (currentDate.getTime() < elapsedBenchmarkDate) {
           workDayElapsedCount++;
         }
       }

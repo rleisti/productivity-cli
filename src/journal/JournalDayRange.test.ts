@@ -36,7 +36,7 @@ describe("JournalDayRange", () => {
       ]);
     });
 
-    test("shuold accept multiple days", () => {
+    test("should accept multiple days", () => {
       const dayRange = new JournalDayRange([
         JournalDay.read(
           "2020-01-01",

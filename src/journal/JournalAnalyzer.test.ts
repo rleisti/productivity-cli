@@ -131,6 +131,11 @@ describe("JournalAnalyzer", () => {
       expect(aggregation).toStrictEqual(aggregationForFirstWeekOf2020);
     });
 
+    test("should include the current day in workDaysElapsed", async () => {
+      const aggregation = await analyzer.analyzeWeek();
+      expect(aggregation.workDaysElapsed).toBe(new Date().getDay());
+    });
+
     test("should determine the beginning of week based on provided configuration", async () => {
       const analyzer = new JournalAnalyzer({
         basePath,
