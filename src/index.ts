@@ -67,11 +67,12 @@ import { getWorkDayClassifier } from "./journal/workDay";
       async (args) => reportJournalForWeek(args),
     )
     .command(
-      "month <month>",
-      "Generate a summary report for a given month",
+      "month [month]",
+      "Generate a summary report for a given month.",
       (yargs) => {
         yargs.positional("month", {
-          describe: "The month in format YYYY-MM",
+          describe:
+            "The month in format YYYY-MM. Defaults to the current month.",
         });
       },
       (args) => reportJournalForMonth(args),
@@ -146,7 +147,10 @@ async function reportJournalForWeek(args: Arguments) {
 async function reportJournalForMonth(args: Arguments) {
   const { month } = args as MonthArguments;
   const journalService = await createJournalService(args);
-  const data = await journalService.reportMonth(parseMonth(month));
+  const monthValue = month
+    ? parseMonth(month)
+    : { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
+  const data = await journalService.reportMonth(monthValue);
   printJournalReport(data);
 }
 
