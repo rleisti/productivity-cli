@@ -68,9 +68,9 @@ export function printJournalReport(report: TimesheetReport) {
   for (const client of report.clients) {
     console.log(
       styleText(["bold"], client.client) +
-        ` (${formatMinutes(client.actualMinutes)} of ${formatMinutes(client.targetMinutes)}):` +
-        styleText(["italic"], ` rounded: `) +
-        formatMinutes(client.roundedMinutes) +
+        ` (${formatMinutes(client.roundedMinutes)} of ${formatMinutes(client.targetMinutes)}):` +
+        styleText(["italic"], ` actual: `) +
+        formatMinutes(client.actualMinutes) +
         ", " +
         styleText(["italic"], `period target: `) +
         formatMinutes(client.periodTargetMinutes),
@@ -80,9 +80,9 @@ export function printJournalReport(report: TimesheetReport) {
       console.log(
         "    " +
           styleText(["bold"], project.project) +
-          ` (${formatMinutes(project.actualMinutes)}):` +
-          styleText(["italic"], ` rounded: `) +
-          formatMinutes(project.roundedMinutes),
+          ` (${formatMinutes(project.roundedMinutes)}):` +
+          styleText(["italic"], ` actual: `) +
+          formatMinutes(project.actualMinutes),
       );
     }
   }
