@@ -1,6 +1,7 @@
 journal_path = "~/journal"
 start_of_week = "sunday"
 work_days = "nova_scotia"
+ai_service = "anthropic"
 
 [clients]
     [clients.a]
@@ -17,3 +18,7 @@ work_days = "nova_scotia"
         roundin_type = "none"
     [clients.d]
         id = "ClientD"
+
+[anthropic]
+api_key = "api key value"
+model = "claude-3-5-haiku-latest"

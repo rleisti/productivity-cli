@@ -1,6 +1,7 @@
 import { JournalReporterClientConfiguration } from "./journal/JournalReporter";
 import * as toml from "toml";
 import * as fs from "node:fs";
+import { AnthropicAiModelConfiguration } from "./ai/AnthropicAiModel";
 
 /**
  * A service which processes a configuration file.
@@ -9,18 +10,24 @@ export default class Config {
   public readonly journalBasePath: string;
   public readonly startOfWeek: number;
   public readonly workDayClassifierName?: string;
+  public readonly aiService?: string;
   public readonly clients: JournalReporterClientConfiguration[];
+  public readonly anthropic?: AnthropicAiModelConfiguration;
 
   constructor(
     journalBasePath: string,
     startOfWeek: number,
     workDayClassifierName?: string,
+    aiService?: string,
     clients?: JournalReporterClientConfiguration[],
+    anthropic?: AnthropicAiModelConfiguration,
   ) {
     this.journalBasePath = journalBasePath;
     this.startOfWeek = startOfWeek;
     this.workDayClassifierName = workDayClassifierName;
+    this.aiService = aiService;
     this.clients = clients ?? [];
+    this.anthropic = anthropic;
   }
 
   /**
@@ -45,6 +52,7 @@ export default class Config {
     const journalBasePath = data.journal_path ?? ".";
     const startOfWeek = mapStartOfWeek(data.start_of_week);
     const workDayClassifierName = data.work_days;
+    const aiService = data.ai_service;
     const clients = [];
 
     if (data.clients) {
@@ -62,11 +70,20 @@ export default class Config {
       }
     }
 
+    const anthropic = data.anthropic
+      ? {
+          apiKey: data.anthropic.api_key,
+          model: data.anthropic.model,
+        }
+      : undefined;
+
     return new Config(
       journalBasePath,
       startOfWeek,
       workDayClassifierName,
+      aiService,
       clients,
+      anthropic,
     );
   }
 
@@ -93,20 +110,33 @@ start_of_week = "saturday"
 #    - "nova_scotia" - Classifies all weekdays as work days, except for Nova Scotia paid holidays.
 work_days = "general"
 
+# Specify the AI service to use.
+# Currently only supports "anthropic".
+aiService = "anthropic"
+
 [clients]
     [clients.a]
-        # Identifies the client in journal files.
-        id = "ClientID"
+    
+    # Identifies the client in journal files.
+    id = "ClientID"
         
-        # The nominal number of hours to work per day for this client.
-        target_hours_per_day = 8
+    # The nominal number of hours to work per day for this client.
+    target_hours_per_day = 8
         
-        # The number of minutes to round activity durations to.
-        rounding_increment = 0
+    # The number of minutes to round activity durations to.
+    rounding_increment = 0
         
-        # The method to use for rounding activity durations to the specified increment.
-        # One of "none", "round", or "round_up"
-        rounding_type = "none"
+    # The method to use for rounding activity durations to the specified increment.
+    # One of "none", "round", or "round_up"
+    rounding_type = "none"
+        
+[anthropic]
+
+# Specify your Anthropic API key.
+api_key = "YOUR_API_KEY"
+
+# Specify the model you want to use.
+model = "claude-3-5-haiku-latest"
     `;
     fs.writeFileSync(path, templateContent);
   }
@@ -146,7 +176,9 @@ type ConfigFile = {
   journal_path?: string;
   start_of_week?: string;
   work_days?: string;
+  ai_service?: string;
   clients?: ClientConfig[];
+  anthropic?: AnthropicConfig;
 };
 
 type ClientConfig = {
@@ -154,4 +186,9 @@ type ClientConfig = {
   target_hours_per_day?: number;
   rounding_increment?: number;
   rounding_type?: string;
+};
+
+type AnthropicConfig = {
+  api_key: string;
+  model: string;
 };

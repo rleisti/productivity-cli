@@ -1,8 +1,12 @@
 import JournalDay from "./JournalDay";
 import { Day, Month, TimesheetAggregation } from "./types";
-import { dateToDay, formatDay, formatDayRange, formatMonth } from "./util";
-import * as path from "node:path";
-import * as fs from "node:fs";
+import {
+  dateToDay,
+  formatDay,
+  formatDayRange,
+  formatMonth,
+  loadJournalFile,
+} from "./util";
 import JournalDayRange from "./JournalDayRange";
 
 export type JournalAnalyzerConfiguration = {
@@ -33,23 +37,7 @@ export default class JournalAnalyzer {
    * @param day the day to analyze.
    */
   public async analyzeDay(day: Day): Promise<JournalDay> {
-    const filePath = path.join(
-      this.config.basePath,
-      "" + day.year,
-      `${formatDay(day)}.txt`,
-    );
-
-    const readPromise = new Promise((resolve) => {
-      fs.readFile(filePath, "utf8", (err, data) => {
-        if (!err) {
-          resolve(data);
-        } else {
-          resolve("");
-        }
-      });
-    });
-
-    const content = (await readPromise) as string;
+    const content = await loadJournalFile(this.config.basePath, day);
     return JournalDay.read(formatDay(day), content);
   }
 

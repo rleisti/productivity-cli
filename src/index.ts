@@ -7,6 +7,9 @@ import { printJournalDay, printJournalReport } from "./journal/printing";
 import { Day, Month } from "./journal/types";
 import Config from "./Config";
 import { getWorkDayClassifier } from "./journal/workDay";
+import NoteGatherer from "./ai/NoteGatherer";
+import { getAiService } from "./ai/AiService";
+import NoteSummarizer from "./ai/NoteSummarizer";
 
 (async () => {
   await yargs()
@@ -77,6 +80,18 @@ import { getWorkDayClassifier } from "./journal/workDay";
       },
       (args) => reportJournalForMonth(args),
     )
+    .command(
+      "summarize <days>",
+      "Generate a summary of notes for the last <days> days",
+      (yargs) => {
+        yargs.positional("days", {
+          describe: "The number of days to summarize",
+          type: "number",
+          default: 7,
+        });
+      },
+      (args) => summarizeNotesForRange(args),
+    )
     .help()
     .parse(hideBin(process.argv));
 
@@ -102,6 +117,10 @@ interface WeekArguments extends Arguments {
 
 interface MonthArguments extends Arguments {
   month: string;
+}
+
+interface SummarizeArguments extends Arguments {
+  days: number;
 }
 
 function init(args: Arguments) {
@@ -152,6 +171,22 @@ async function reportJournalForMonth(args: Arguments) {
     : { year: new Date().getFullYear(), month: new Date().getMonth() + 1 };
   const data = await journalService.reportMonth(monthValue);
   printJournalReport(data);
+}
+
+async function summarizeNotesForRange(args: Arguments) {
+  const { days } = args as SummarizeArguments;
+  const config = await Config.load(args.config);
+  const noteGatherer = new NoteGatherer({
+    journalBasePath: args.journalPath ?? ".",
+    clients: [],
+  });
+  const aiService = getAiService(config);
+  const noteSummarizer = new NoteSummarizer({
+    aiService: aiService,
+    noteGatherer,
+  });
+  const summary = await noteSummarizer.summarizeRange(days);
+  console.log(summary);
 }
 
 /**

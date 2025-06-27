@@ -1,4 +1,6 @@
 import { Day, Month } from "./types";
+import path from "node:path";
+import { readOptionalFile, zeroPad } from "../util";
 
 export function formatDay(day: Day): string {
   return `${zeroPad(day.year, 4)}-${zeroPad(day.month, 2)}-${zeroPad(day.day, 2)}`;
@@ -21,10 +23,11 @@ export function dateToDay(date: Date): Day {
   };
 }
 
-function zeroPad(value: number, length: number) {
-  let result = "" + value;
-  while (result.length < length) {
-    result = "0" + result;
-  }
-  return result;
+export async function loadJournalFile(
+  basePath: string,
+  day: Day,
+): Promise<string> {
+  return readOptionalFile(
+    path.join(basePath, "" + day.year, `${formatDay(day)}.txt`),
+  );
 }
