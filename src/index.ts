@@ -177,7 +177,7 @@ async function summarizeNotesForRange(args: Arguments) {
   const { days } = args as SummarizeArguments;
   const config = await Config.load(args.config);
   const noteGatherer = new NoteGatherer({
-    journalBasePath: args.journalPath ?? ".",
+    journalBasePath: args.journalPath ?? config.journalBasePath,
     clients: [],
   });
   const aiService = getAiService(config);
