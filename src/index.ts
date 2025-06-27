@@ -81,7 +81,7 @@ import NoteSummarizer from "./ai/NoteSummarizer";
       (args) => reportJournalForMonth(args),
     )
     .command(
-      "summarize <days>",
+      "summarize [days]",
       "Generate a summary of notes for the last <days> days",
       (yargs) => {
         yargs.positional("days", {
