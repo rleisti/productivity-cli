@@ -32,7 +32,10 @@ export default class AnthropicAiModel implements AiService {
     });
 
     return {
-      content: response.content.toString(),
+      content: response.content
+        .filter((item) => item.type === "text")
+        .map((item) => item.text)
+        .join("\n"),
       role: "model",
     };
   }
