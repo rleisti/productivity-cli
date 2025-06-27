@@ -48,6 +48,8 @@ export default class NoteSummarizer {
         const noteTag = `note-${zeroPad(currentDate.getFullYear(), 4)}-${zeroPad(currentDate.getMonth() + 1, 2)}-${zeroPad(currentDate.getDate(), 2)}`;
         noteContent += `<${noteTag}>\n${note}\n</${noteTag}>\n`;
       }
+
+      currentDate.setDate(currentDate.getDate() + 1);
     }
 
     if (!noteContent) {
