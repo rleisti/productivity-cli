@@ -2,10 +2,12 @@ import NoteGatherer from "./NoteGatherer";
 import { AiService, AiServiceMessage } from "./AiService";
 import { Day } from "../journal/types";
 import { zeroPad } from "../util";
+import PromptService from "./PromptService";
 
 type NoteSummarizerConfiguration = {
   aiService: AiService;
   noteGatherer: NoteGatherer;
+  promptService: PromptService;
 };
 
 /**
@@ -56,13 +58,14 @@ export default class NoteSummarizer {
       return "No notes found for the specified period.";
     }
 
+    const content = (
+      await this.config.promptService.getPrompt("summarizeNotes")
+    ).replace(/\{notes}/g, noteContent);
+
     const query: AiServiceMessage[] = [
       {
         role: "user",
-        content:
-          "Summarize the following notes. The summary should highlight the most important points " +
-          "and provide a list of recommended actions.\n\n" +
-          noteContent,
+        content,
       },
     ];
     const queryResponse = await this.config.aiService.converse(query);

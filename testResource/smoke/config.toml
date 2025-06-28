@@ -8,4 +8,7 @@ aiService = "none"
     rounding_increment = 15
     rounding_type = "roundUp"
     notes_file_pattern = "testResource/smoke/notes/ClientA/{year}-{month}-{day}.txt"
+
+[prompts]
+    summarize_notes = "testResource/smoke/prompts/summarize-notes.txt"
     

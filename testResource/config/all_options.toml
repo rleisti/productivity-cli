@@ -23,6 +23,9 @@ ai_service = "anthropic"
     [clients.d]
     id = "ClientD"
 
+[prompts]
+summarize_notes = "./prompts/summarize-notes.txt"
+
 [anthropic]
 api_key = "api key value"
 model = "claude-3-5-haiku-latest"

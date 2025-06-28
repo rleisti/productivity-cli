@@ -10,6 +10,7 @@ import { getWorkDayClassifier } from "./journal/workDay";
 import NoteGatherer from "./ai/NoteGatherer";
 import { getAiService } from "./ai/AiService";
 import NoteSummarizer from "./ai/NoteSummarizer";
+import PromptService from "./ai/PromptService";
 
 (async () => {
   await yargs()
@@ -188,9 +189,11 @@ async function summarizeNotesForRange(args: Arguments) {
     clients: config.clients,
   });
   const aiService = getAiService(config);
+  const promptService = new PromptService(config.prompts);
   const noteSummarizer = new NoteSummarizer({
-    aiService: aiService,
+    aiService,
     noteGatherer,
+    promptService,
   });
   const relativeTo = startingDay ? parseDay(startingDay) : undefined;
   const summary = await noteSummarizer.summarizeRange(days, relativeTo);

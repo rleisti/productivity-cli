@@ -1,0 +1,5 @@
+Summarize notes prompt:
+
+{notes}
+
+End of prompt

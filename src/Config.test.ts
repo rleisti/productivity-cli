@@ -45,6 +45,9 @@ describe("Config", () => {
           },
         ],
         {
+          summarizeNotes: "./prompts/summarize-notes.txt",
+        },
+        {
           model: "claude-3-5-haiku-latest",
           apiKey: "api key value",
         },

@@ -7,6 +7,10 @@ import { NoteGathererClientConfiguration } from "./ai/NoteGatherer";
 type ConfigClientConfiguration = JournalReporterClientConfiguration &
   NoteGathererClientConfiguration;
 
+export type Prompts = {
+  summarizeNotes?: string;
+};
+
 /**
  * A service which processes a configuration file.
  */
@@ -16,6 +20,7 @@ export default class Config {
   public readonly workDayClassifierName?: string;
   public readonly aiService?: string;
   public readonly clients: ConfigClientConfiguration[];
+  public readonly prompts: Prompts;
   public readonly anthropic?: AnthropicAiModelConfiguration;
 
   constructor(
@@ -24,6 +29,7 @@ export default class Config {
     workDayClassifierName?: string,
     aiService?: string,
     clients?: ConfigClientConfiguration[],
+    prompts?: Prompts,
     anthropic?: AnthropicAiModelConfiguration,
   ) {
     this.journalBasePath = journalBasePath;
@@ -31,6 +37,7 @@ export default class Config {
     this.workDayClassifierName = workDayClassifierName;
     this.aiService = aiService;
     this.clients = clients ?? [];
+    this.prompts = prompts ?? {};
     this.anthropic = anthropic;
   }
 
@@ -57,8 +64,8 @@ export default class Config {
     const startOfWeek = mapStartOfWeek(data.start_of_week);
     const workDayClassifierName = data.work_days;
     const aiService = data.ai_service;
-    const clients = [];
 
+    const clients = [];
     if (data.clients) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       for (const [_key, value] of Object.entries(data.clients)) {
@@ -75,6 +82,11 @@ export default class Config {
       }
     }
 
+    const prompts: Prompts = {};
+    if (data.prompts) {
+      prompts.summarizeNotes = data.prompts.summarize_notes;
+    }
+
     const anthropic = data.anthropic
       ? {
           apiKey: data.anthropic.api_key,
@@ -88,6 +100,7 @@ export default class Config {
       workDayClassifierName,
       aiService,
       clients,
+      prompts,
       anthropic,
     );
   }
@@ -143,6 +156,12 @@ aiService = "anthropic"
     # - {day} the 2 digit day
     notes_file_pattern = "notes/ClientID/{year}-{month}-{day}.txt"
         
+[prompts]
+# The path to the file containing the prompt to use for summarizing notes.
+# The file content may contain the following placeholders:
+# - {notes} the combined note content for summarization
+summarize_notes = ".productivity-cli/prompts/summarize-notes.txt"
+        
 [anthropic]
 
 # Specify your Anthropic API key.
@@ -195,6 +214,7 @@ type ConfigFile = {
   work_days?: string;
   ai_service?: string;
   clients?: ClientConfig[];
+  prompts?: PromptConfig;
   anthropic?: AnthropicConfig;
 };
 
@@ -204,6 +224,10 @@ type ClientConfig = {
   rounding_increment?: number;
   rounding_type?: string;
   notes_file_pattern?: string;
+};
+
+type PromptConfig = {
+  summarize_notes?: string;
 };
 
 type AnthropicConfig = {
