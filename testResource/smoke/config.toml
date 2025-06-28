@@ -1,9 +1,11 @@
 journal_path = "testResource/smoke/journal"
+aiService = "none"
 
 [clients]
     [clients.a]
-        id = "ClientA"
-        target_hours_per_day = 4
-        rounding_increment = 15
-        rounding_type = "roundUp"
+    id = "ClientA"
+    target_hours_per_day = 4
+    rounding_increment = 15
+    rounding_type = "roundUp"
+    notes_file_pattern = "testResource/smoke/notes/ClientA/{year}-{month}-{day}.txt"
     

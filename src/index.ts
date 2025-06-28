@@ -81,14 +81,20 @@ import NoteSummarizer from "./ai/NoteSummarizer";
       (args) => reportJournalForMonth(args),
     )
     .command(
-      "summarize [days]",
+      "summarize [days] [startingDay]",
       "Generate a summary of notes for the last <days> days",
       (yargs) => {
-        yargs.positional("days", {
-          describe: "The number of days to summarize",
-          type: "number",
-          default: 7,
-        });
+        yargs
+          .positional("days", {
+            describe: "The number of days to summarize",
+            type: "number",
+            default: 7,
+          })
+          .positional("startingDay", {
+            describe:
+              "The relative starting day for the summary. Defaults to today. Format is YYYY-MM-DD.",
+            type: "string",
+          });
       },
       (args) => summarizeNotesForRange(args),
     )
@@ -121,6 +127,7 @@ interface MonthArguments extends Arguments {
 
 interface SummarizeArguments extends Arguments {
   days: number;
+  startingDay?: string;
 }
 
 function init(args: Arguments) {
@@ -174,18 +181,19 @@ async function reportJournalForMonth(args: Arguments) {
 }
 
 async function summarizeNotesForRange(args: Arguments) {
-  const { days } = args as SummarizeArguments;
+  const { days, startingDay } = args as SummarizeArguments;
   const config = await Config.load(args.config);
   const noteGatherer = new NoteGatherer({
     journalBasePath: args.journalPath ?? config.journalBasePath,
-    clients: [],
+    clients: config.clients,
   });
   const aiService = getAiService(config);
   const noteSummarizer = new NoteSummarizer({
     aiService: aiService,
     noteGatherer,
   });
-  const summary = await noteSummarizer.summarizeRange(days);
+  const relativeTo = startingDay ? parseDay(startingDay) : undefined;
+  const summary = await noteSummarizer.summarizeRange(days, relativeTo);
   console.log(summary);
 }
 

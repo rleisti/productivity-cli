@@ -12,9 +12,10 @@
     "prettier": "bunx prettier . --check",
     "prettier:fix": "bunx prettier . --write",
     "setup:git": "chmod +x githooks/* && cp githooks/* .git/hooks/",
+    "smoke:ai:summarize": "bun dev summarize 7 2025-01-06 -c testResource/smoke/config.toml",
     "smoke:journal:month": "bun dev month 2025-01 -c testResource/smoke/config.toml",
     "smoke:journal:day": "bun dev day 2025-01-06 -c testResource/smoke/config.toml",
-    "smoke": "bun smoke:journal:month && bun smoke:journal:day"
+    "smoke": "bun smoke:journal:month && bun smoke:journal:day && bun smoke:ai:summarize"
   },
   "repository": {
     "type": "git",

@@ -10,7 +10,7 @@ export type AnthropicAiModelConfiguration = {
 /**
  * An AI model implementation for Anthropic
  */
-export default class AnthropicAiModel implements AiService {
+export default class AnthropicAiService implements AiService {
   private readonly aiService: Anthropic;
   private readonly model: Model;
 

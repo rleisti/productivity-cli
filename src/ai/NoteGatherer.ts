@@ -9,7 +9,7 @@ type NoteGathererConfiguration = {
   clients: NoteGathererClientConfiguration[];
 };
 
-type NoteGathererClientConfiguration = {
+export type NoteGathererClientConfiguration = {
   /** The client identifier. */
   client: string;
 

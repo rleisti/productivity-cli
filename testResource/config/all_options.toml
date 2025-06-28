@@ -9,6 +9,8 @@ ai_service = "anthropic"
         target_hours_per_day = 7
         rounding_increment = 15
         rounding_type = "round_up"
+        notes_file_pattern = "./notes/{year}/{year}-{month}-{day}.txt"
+
     [clients.b]
         id = "ClientB"
         rounding_increment = 30

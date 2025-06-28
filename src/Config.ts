@@ -1,7 +1,11 @@
 import { JournalReporterClientConfiguration } from "./journal/JournalReporter";
 import * as toml from "toml";
 import * as fs from "node:fs";
-import { AnthropicAiModelConfiguration } from "./ai/AnthropicAiModel";
+import { AnthropicAiModelConfiguration } from "./ai/AnthropicAiService";
+import { NoteGathererClientConfiguration } from "./ai/NoteGatherer";
+
+type ConfigClientConfiguration = JournalReporterClientConfiguration &
+  NoteGathererClientConfiguration;
 
 /**
  * A service which processes a configuration file.
@@ -11,7 +15,7 @@ export default class Config {
   public readonly startOfWeek: number;
   public readonly workDayClassifierName?: string;
   public readonly aiService?: string;
-  public readonly clients: JournalReporterClientConfiguration[];
+  public readonly clients: ConfigClientConfiguration[];
   public readonly anthropic?: AnthropicAiModelConfiguration;
 
   constructor(
@@ -19,7 +23,7 @@ export default class Config {
     startOfWeek: number,
     workDayClassifierName?: string,
     aiService?: string,
-    clients?: JournalReporterClientConfiguration[],
+    clients?: ConfigClientConfiguration[],
     anthropic?: AnthropicAiModelConfiguration,
   ) {
     this.journalBasePath = journalBasePath;
@@ -66,6 +70,7 @@ export default class Config {
           activityRoundingMethod: mapRoundingType(
             clientValues.rounding_type ?? "none",
           ),
+          notesFilePattern: clientValues.notes_file_pattern ?? "",
         });
       }
     }
@@ -111,7 +116,8 @@ start_of_week = "saturday"
 work_days = "general"
 
 # Specify the AI service to use.
-# Currently only supports "anthropic".
+# May be one of "anthropic", or "none".
+# The "none" model is only useful for investigation, as it just returns the prompt.
 aiService = "anthropic"
 
 [clients]
@@ -129,6 +135,13 @@ aiService = "anthropic"
     # The method to use for rounding activity durations to the specified increment.
     # One of "none", "round", or "round_up"
     rounding_type = "none"
+    
+    # A file pattern to use for gathering notes for this client.
+    # The following placeholders will be subsituted:
+    # - {year} the 4 digit year
+    # - {month} the 2 digit month
+    # - {day} the 2 digit day
+    notes_file_pattern = "notes/ClientID/{year}-{month}-{day}.txt"
         
 [anthropic]
 
@@ -138,6 +151,10 @@ api_key = "YOUR_API_KEY"
 # Specify the model you want to use.
 model = "claude-3-5-haiku-latest"
     `;
+
+    if (fs.existsSync(path)) {
+      throw new Error(`Configuration file already exists at ${path}`);
+    }
     fs.writeFileSync(path, templateContent);
   }
 }
@@ -186,6 +203,7 @@ type ClientConfig = {
   target_hours_per_day?: number;
   rounding_increment?: number;
   rounding_type?: string;
+  notes_file_pattern?: string;
 };
 
 type AnthropicConfig = {

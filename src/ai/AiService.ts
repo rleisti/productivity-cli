@@ -1,5 +1,6 @@
-import AnthropicAiModel from "./AnthropicAiModel";
+import AnthropicAiService from "./AnthropicAiService";
 import Config from "../Config";
+import FakeAiService from "./FakeAiService";
 
 export interface AiService {
   converse(messages: AiServiceMessage[]): Promise<AiServiceMessage>;
@@ -16,8 +17,16 @@ export type AiServiceMessage = {
  * @param config the configuration settings.
  */
 export function getAiService(config: Config): AiService {
-  return new AnthropicAiModel({
-    apiKey: config.anthropic?.apiKey ?? "",
-    model: config.anthropic?.model ?? "",
-  });
+  const { aiService } = config;
+  switch (aiService) {
+    case "anthropic": {
+      return new AnthropicAiService({
+        apiKey: config.anthropic?.apiKey ?? "",
+        model: config.anthropic?.model ?? "",
+      });
+    }
+    default: {
+      return new FakeAiService();
+    }
+  }
 }

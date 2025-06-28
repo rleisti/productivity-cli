@@ -20,24 +20,28 @@ describe("Config", () => {
             targetHoursPerDay: 7,
             activityRoundingIncrement: 15,
             activityRoundingMethod: "roundUp",
+            notesFilePattern: "./notes/{year}/{year}-{month}-{day}.txt",
           },
           {
             client: "ClientB",
             targetHoursPerDay: 8,
             activityRoundingIncrement: 30,
             activityRoundingMethod: "round",
+            notesFilePattern: "",
           },
           {
             client: "ClientC",
             targetHoursPerDay: 8,
             activityRoundingIncrement: 0,
             activityRoundingMethod: "none",
+            notesFilePattern: "",
           },
           {
             client: "ClientD",
             targetHoursPerDay: 8,
             activityRoundingIncrement: 0,
             activityRoundingMethod: "none",
+            notesFilePattern: "",
           },
         ],
         {
