@@ -5,21 +5,23 @@ ai_service = "anthropic"
 
 [clients]
     [clients.a]
-        id = "ClientA"
-        target_hours_per_day = 7
-        rounding_increment = 15
-        rounding_type = "round_up"
-        notes_file_pattern = "./notes/{year}/{year}-{month}-{day}.txt"
+    id = "ClientA"
+    target_hours_per_day = 7
+    rounding_increment = 15
+    rounding_type = "round_up"
+    notes_file_pattern = "./notes/{year}/{year}-{month}-{day}.txt"
 
     [clients.b]
-        id = "ClientB"
-        rounding_increment = 30
-        rounding_type = "round"
+    id = "ClientB"
+    rounding_increment = 30
+    rounding_type = "round"
+
     [clients.c]
-        id = "ClientC"
-        roundin_type = "none"
+    id = "ClientC"
+    roundin_type = "none"
+
     [clients.d]
-        id = "ClientD"
+    id = "ClientD"
 
 [anthropic]
 api_key = "api key value"
