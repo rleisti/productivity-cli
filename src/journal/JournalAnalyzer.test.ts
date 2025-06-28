@@ -133,7 +133,10 @@ describe("JournalAnalyzer", () => {
 
     test("should include the current day in workDaysElapsed", async () => {
       const aggregation = await analyzer.analyzeWeek();
-      expect(aggregation.workDaysElapsed).toBe(new Date().getDay());
+      const currentDay = new Date().getDay();
+      expect(aggregation.workDaysElapsed).toBe(
+        currentDay == 6 || currentDay == 0 ? 0 : currentDay,
+      );
     });
 
     test("should determine the beginning of week based on provided configuration", async () => {
