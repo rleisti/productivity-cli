@@ -21,8 +21,9 @@ describe("workDay Classifiers", () => {
       expect(classifier({ year: 2025, month: 4, day: 18 })).toBeFalsy();
       expect(classifier({ year: 2025, month: 7, day: 1 })).toBeFalsy();
       expect(classifier({ year: 2025, month: 9, day: 1 })).toBeFalsy();
+      expect(classifier({ year: 2025, month: 11, day: 11 })).toBeFalsy();
       expect(classifier({ year: 2025, month: 12, day: 25 })).toBeFalsy();
-      expect(countHolidays(2025, classifier)).toBe(6);
+      expect(countHolidays(2025, classifier)).toBe(7);
     });
 
     test("should classify 2026 holidays", () => {
@@ -31,8 +32,9 @@ describe("workDay Classifiers", () => {
       expect(classifier({ year: 2026, month: 4, day: 3 })).toBeFalsy();
       expect(classifier({ year: 2026, month: 7, day: 1 })).toBeFalsy();
       expect(classifier({ year: 2026, month: 9, day: 7 })).toBeFalsy();
+      expect(classifier({ year: 2026, month: 11, day: 11 })).toBeFalsy();
       expect(classifier({ year: 2026, month: 12, day: 25 })).toBeFalsy();
-      expect(countHolidays(2025, classifier)).toBe(6);
+      expect(countHolidays(2025, classifier)).toBe(7);
     });
   });
 });

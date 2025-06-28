@@ -32,12 +32,17 @@ function classifyForNovaScotiaHolidays(day: Day): boolean {
     classifyGoodFriday(day) &&
     classifyCanadaDay(day) &&
     classifyLabourDay(day) &&
+    classifyRemembranceDay(day) &&
     classifyChristmasDay(day)
   );
 }
 
 function classifyNewYearsDay(day: Day): boolean {
   return getClassifierForDayOrNextWorkingDay(1, 1)(day);
+}
+
+function classifyRemembranceDay(day: Day): boolean {
+  return day.month != 11 || day.day != 11;
 }
 
 function classifyNovaScotiaHeritageDay(day: Day): boolean {
