@@ -6,7 +6,7 @@ The goal of this project is to provide the professional with lightweight tools t
 help them optimize their time. This includes:
 
 - Tracking and reporting their time
-- Summarizing their notes and providing reminders (upcoming)
+- Summarizing their notes with the use of a large language model (LLM)
 
 This project is designed around a professional that potentially works for multiple
 clients on multiple projects per client. It might also be useful for anyone that
@@ -88,6 +88,12 @@ the start of a non-work period. (because it does not match the
 `ClientID:ProjectID:ActivityID` format, otherwise the word "break" is
 arbitrary)
 
+### Client notes
+
+The tool supports processing generic daily notes associated to each client.
+See the sample generated configuration file for details on how to inform the tool
+on how to locate these notes for processing.
+
 # Development
 
 This project uses:
@@ -123,5 +129,7 @@ bun smoke           # run a quick smoke test (not a real test)
 ```
 <root>
     |-- src/          # Source files
+    |-- src/ai        # Code related to the AI-enabled functionality
+    |-- src/journal   # Code related to journal and timesheet processing
     |-- testResource/ # Test resource files
 ```
