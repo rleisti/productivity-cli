@@ -99,6 +99,5 @@ export default class NoteGatherer {
 const secretsRegex = /<secret>(.|\s)*?<\/secret>/g;
 
 function filterSecretsFromClientNote(note: string): string {
-  console.log("replace");
   return note.replace(secretsRegex, "");
 }
