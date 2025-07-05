@@ -103,15 +103,6 @@ This project uses:
 - Prettier for consistent code formatting
 - Jest for testing
 
-## Setup
-
-This project includes a client-side git hook to ensure commits pass all quality checks.
-To enable it, run:
-
-```
-bun setup:git
-```
-
 ## Scripts
 
 ```

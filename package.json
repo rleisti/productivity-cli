@@ -11,11 +11,11 @@
     "lint": "bunx eslint src/**",
     "prettier": "bunx prettier . --check",
     "prettier:fix": "bunx prettier . --write",
-    "setup:git": "chmod +x githooks/* && cp githooks/* .git/hooks/",
     "smoke:ai:summarize": "bun dev summarize 7 2025-01-06 -c testResource/smoke/config.toml",
     "smoke:journal:month": "bun dev month 2025-01 -c testResource/smoke/config.toml",
     "smoke:journal:day": "bun dev day 2025-01-06 -c testResource/smoke/config.toml",
-    "smoke": "bun smoke:journal:month && bun smoke:journal:day && bun smoke:ai:summarize"
+    "smoke": "bun smoke:journal:month && bun smoke:journal:day && bun smoke:ai:summarize",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -33,6 +33,7 @@
     "bun": "^1.2.17",
     "eslint": "^9.29.0",
     "globals": "^16.2.0",
+    "husky": "^9.1.7",
     "jest": "^30.0.2",
     "prettier": "^3.5.3",
     "typescript": "^5.8.3",
