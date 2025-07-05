@@ -1,1 +1,1 @@
-Some notes for ClientA
+Some notes<secret>should not see this secret content</secret> for ClientA<secret>so sneaky</secret>

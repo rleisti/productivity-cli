@@ -58,5 +58,16 @@ describe("NoteGatherer", () => {
           "Client notes for January 1, 2020</ClientA>\n\n",
       );
     });
+
+    test("should filter secret content out of client notes", async () => {
+      const notes = await noteGatherer.findNotes({
+        year: 2020,
+        month: 4,
+        day: 1,
+      });
+      expect(notes).toBe(
+        "<ClientA>\nThis is a client note.\n\n\n\nContent in the middle of the note.\n\n\n\nThis is the rest of the note.</ClientA>\n\n",
+      );
+    });
   });
 });

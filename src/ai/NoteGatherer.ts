@@ -76,7 +76,7 @@ export default class NoteGatherer {
         "<" +
         client.client +
         ">\n" +
-        clientNote +
+        filterSecretsFromClientNote(clientNote) +
         "</" +
         client.client +
         ">\n\n"
@@ -94,4 +94,11 @@ export default class NoteGatherer {
       .replace(/\{month}/g, zeroPad(day.month, 2))
       .replace(/\{day}/g, zeroPad(day.day, 2));
   }
+}
+
+const secretsRegex = /<secret>(.|\s)*?<\/secret>/g;
+
+function filterSecretsFromClientNote(note: string): string {
+  console.log("replace");
+  return note.replace(secretsRegex, "");
 }

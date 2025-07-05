@@ -1,0 +1,13 @@
+This is a client note.
+
+<secret>
+This is invisible secret content.
+</secret>
+
+Content in the middle of the note.
+
+<secret>
+More secret content.
+</secret>
+
+This is the rest of the note.

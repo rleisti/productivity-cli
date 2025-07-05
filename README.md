@@ -90,9 +90,17 @@ arbitrary)
 
 ### Client notes
 
-The tool supports processing generic daily notes associated to each client.
+The tool supports processing generic daily notes associated with each client.
 See the sample generated configuration file for details on how to inform the tool
 on how to locate these notes for processing.
+
+Within client notes, you may specify certain sections as "secret", which prevents
+content within that section from being used by AI. To designate a section as secret,
+do the following:
+
+    <secret>
+    In here I can put whatever I want, but it will not be used by the AI.
+    </secret>
 
 # Development
 
