@@ -1,6 +1,5 @@
-import JournalDay from "./JournalDay";
 import { styleText } from "node:util";
-import { TimesheetReport } from "./types";
+import { JournalDay, TimesheetReport } from "./types";
 
 /**
  * Print the details of a single day's timesheet details to the console.
@@ -8,13 +7,11 @@ import { TimesheetReport } from "./types";
  * @param journalDay the detailed timesheet data to print
  */
 export function printJournalDay(journalDay: JournalDay) {
-  console.log(
-    "Detailed report for " + styleText(["bold"], journalDay.getDate()),
-  );
+  console.log("Detailed report for " + styleText(["bold"], journalDay.date));
   console.log("========================================");
   console.log();
 
-  const clients = journalDay.getClients();
+  const clients = journalDay.clients;
   if (clients.length === 0) {
     console.log(
       styleText(["italic"], "No journal entries recorded for this day."),
@@ -22,27 +19,40 @@ export function printJournalDay(journalDay: JournalDay) {
     return;
   }
 
-  console.log(
-    `Total time spent: ${formatMinutes(journalDay.getTotalMinutes())}`,
-  );
+  const totalMinutes = clients
+    .map((client) => client.minutes)
+    .reduce((a, b) => a + b, 0);
+  console.log(`Total time spent: ${formatMinutes(totalMinutes)}`);
   console.log();
 
   for (const client of clients) {
     console.log(
       styleText(["bold"], client.client) +
-        ` (${formatMinutes(client.minutes)}):`,
+        ` (${formatMinutes(client.roundedMinutes)} ` +
+        styleText(["italic"], "rounded") +
+        `, ${formatMinutes(client.minutes)} ` +
+        styleText(["italic"], "actual") +
+        "):",
     );
     for (const project of client.projects) {
       console.log(
         "    " +
           styleText(["bold"], project.project) +
-          ` (${formatMinutes(project.minutes)})`,
+          ` (${formatMinutes(project.roundedMinutes)} ` +
+          styleText(["italic"], "rounded") +
+          `, ${formatMinutes(project.minutes)} ` +
+          styleText(["italic"], "actual") +
+          ")",
       );
       for (const activity of project.activities) {
         console.log(
           "        " +
             styleText(["bold"], activity.activity) +
-            ` (${formatMinutes(activity.minutes)})`,
+            ` (${formatMinutes(activity.roundedMinutes)} ` +
+            styleText(["italic"], "rounded") +
+            `, ${formatMinutes(activity.minutes)} ` +
+            styleText(["italic"], "actual") +
+            ")",
         );
         for (const note of activity.notes) {
           console.log("            " + styleText(["italic"], note));

@@ -1,6 +1,6 @@
-import JournalDay from "./JournalDay";
 import {
   ClientTimesheetAggregation,
+  JournalDay,
   ProjectTimesheetAggregation,
 } from "./types";
 
@@ -23,20 +23,23 @@ export default class JournalDayRange {
     const projectMap = new Map<string, ProjectTimesheetAggregation>();
 
     for (const day of this.days) {
-      for (const dayClient of day.getClients()) {
+      for (const dayClient of day.clients) {
         const client =
           clientMap.get(dayClient.client) ||
           (() => {
             const newClient = {
               client: dayClient.client,
               minutes: 0,
-              minuteIncrements: [],
+              roundedMinutes: 0,
               projects: [],
             };
             clientMap.set(dayClient.client, newClient);
             clients.push(newClient);
             return newClient;
           })();
+
+        client.minutes += dayClient.minutes;
+        client.roundedMinutes += dayClient.roundedMinutes;
 
         for (const dayProject of dayClient.projects) {
           const project =
@@ -45,7 +48,7 @@ export default class JournalDayRange {
               const newProject = {
                 project: dayProject.project,
                 minutes: 0,
-                minuteIncrements: [],
+                roundedMinutes: 0,
               };
               projectMap.set(
                 `${dayClient.client}:${dayProject.project}`,
@@ -55,12 +58,8 @@ export default class JournalDayRange {
               return newProject;
             })();
 
-          for (const activity of dayProject.activities) {
-            project.minutes += activity.minutes;
-            project.minuteIncrements.push(activity.minutes);
-            client.minutes += activity.minutes;
-            client.minuteIncrements.push(activity.minutes);
-          }
+          project.minutes += dayProject.minutes;
+          project.roundedMinutes += dayProject.roundedMinutes;
         }
       }
     }

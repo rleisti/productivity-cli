@@ -215,6 +215,7 @@ async function createJournalService(args: Arguments): Promise<JournalService> {
       workDayClassifier: getWorkDayClassifier(
         config.workDayClassifierName ?? "default",
       ),
+      clients: config.clients,
     },
     reporter: {
       clients: config.clients,

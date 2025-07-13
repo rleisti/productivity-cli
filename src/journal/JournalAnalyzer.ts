@@ -1,5 +1,10 @@
-import JournalDay from "./JournalDay";
-import { Day, Month, TimesheetAggregation } from "./types";
+import {
+  Day,
+  JournalClientConfiguration,
+  JournalDay,
+  Month,
+  TimesheetAggregation,
+} from "./types";
 import {
   dateToDay,
   formatDay,
@@ -8,6 +13,7 @@ import {
   loadJournalFile,
 } from "./util";
 import JournalDayRange from "./JournalDayRange";
+import JournalDayReader from "./JournalDayReader";
 
 export type JournalAnalyzerConfiguration = {
   /** The base path of the journal files. */
@@ -18,6 +24,9 @@ export type JournalAnalyzerConfiguration = {
 
   /** A classification system to determine which days are considered working days. */
   workDayClassifier: (day: Day) => boolean;
+
+  /** Client-specific business rules. */
+  clients: JournalClientConfiguration[];
 };
 
 /**
@@ -25,9 +34,13 @@ export type JournalAnalyzerConfiguration = {
  */
 export default class JournalAnalyzer {
   private readonly config: JournalAnalyzerConfiguration;
+  private readonly reader: JournalDayReader;
 
   constructor(configuration: JournalAnalyzerConfiguration) {
     this.config = configuration;
+    this.reader = new JournalDayReader({
+      clients: configuration.clients,
+    });
   }
 
   /**
@@ -38,7 +51,7 @@ export default class JournalAnalyzer {
    */
   public async analyzeDay(day: Day): Promise<JournalDay> {
     const content = await loadJournalFile(this.config.basePath, day);
-    return JournalDay.read(formatDay(day), content);
+    return this.reader.read(formatDay(day), content);
   }
 
   /**

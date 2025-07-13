@@ -1,10 +1,10 @@
-import { JournalReporterClientConfiguration } from "./journal/JournalReporter";
 import * as toml from "toml";
 import * as fs from "node:fs";
 import { AnthropicAiModelConfiguration } from "./ai/AnthropicAiService";
 import { NoteGathererClientConfiguration } from "./ai/NoteGatherer";
+import { JournalClientConfiguration } from "./journal/types";
 
-type ConfigClientConfiguration = JournalReporterClientConfiguration &
+type ConfigClientConfiguration = JournalClientConfiguration &
   NoteGathererClientConfiguration;
 
 export type Prompts = {

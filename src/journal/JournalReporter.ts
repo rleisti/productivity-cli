@@ -1,27 +1,11 @@
-import { TimesheetAggregation, TimesheetReport } from "./types";
+import {
+  JournalClientConfiguration,
+  TimesheetAggregation,
+  TimesheetReport,
+} from "./types";
 
 export type JournalReporterConfiguration = {
-  clients: JournalReporterClientConfiguration[];
-};
-
-export type JournalReporterClientConfiguration = {
-  /** The client identifier. */
-  client: string;
-
-  /** The nominal working hours target per day. Defaults to 8. */
-  targetHoursPerDay?: number;
-
-  /** The number of minutes to round increments to. Defaults to 0. */
-  activityRoundingIncrement?: number;
-
-  /** The method to use for rounding activity minutes. Defaults to 'none'. */
-  activityRoundingMethod?: "none" | "round" | "roundUp";
-};
-
-type MaterializedClientConfiguration = {
-  targetHoursPerDay: number;
-  activityRoundingIncrement: number;
-  activityRoundingMethod: "none" | "round" | "roundUp";
+  clients: JournalClientConfiguration[];
 };
 
 /**
@@ -41,30 +25,24 @@ export default class JournalReporter {
    */
   public report(aggregation: TimesheetAggregation): TimesheetReport {
     const clients = aggregation.clients.map((client) => {
-      const clientConfig = this.getClientConfig(client.client);
-      const targetHoursPerDay = clientConfig.targetHoursPerDay;
+      const targetHoursPerDay = this.getClientTargetHoursPerDay(client.client);
       const targetMinutes =
         targetHoursPerDay * 60 * aggregation.workDaysElapsed;
       const periodTargetMinutes =
         targetHoursPerDay * 60 * aggregation.workDaysInPeriod;
-      const roundedMinutes = client.minuteIncrements
-        .map((minutes) => this.roundMinutes(clientConfig, minutes))
-        .reduce((a, b) => a + b, 0);
 
       const projects = client.projects.map((project) => {
         return {
           project: project.project,
           actualMinutes: project.minutes,
-          roundedMinutes: project.minuteIncrements
-            .map((minutes) => this.roundMinutes(clientConfig, minutes))
-            .reduce((a, b) => a + b, 0),
+          roundedMinutes: project.roundedMinutes,
         };
       });
 
       return {
         client: client.client,
         actualMinutes: client.minutes,
-        roundedMinutes,
+        roundedMinutes: client.roundedMinutes,
         targetMinutes,
         periodTargetMinutes,
         projects,
@@ -74,32 +52,8 @@ export default class JournalReporter {
     return { range: aggregation.range, clients };
   }
 
-  private getClientConfig(client: string): MaterializedClientConfiguration {
+  private getClientTargetHoursPerDay(client: string): number {
     const config = this.config.clients.find((c) => c.client === client);
-    return {
-      targetHoursPerDay: config?.targetHoursPerDay ?? 8,
-      activityRoundingIncrement: config?.activityRoundingIncrement ?? 0,
-      activityRoundingMethod: config?.activityRoundingMethod ?? "none",
-    };
-  }
-
-  private roundMinutes(
-    clientConfig: MaterializedClientConfiguration,
-    minutes: number,
-  ): number {
-    switch (clientConfig.activityRoundingMethod) {
-      case "none":
-        return minutes;
-      case "round":
-        return (
-          Math.round(minutes / clientConfig.activityRoundingIncrement) *
-          clientConfig.activityRoundingIncrement
-        );
-      case "roundUp":
-        return (
-          Math.ceil(minutes / clientConfig.activityRoundingIncrement) *
-          clientConfig.activityRoundingIncrement
-        );
-    }
+    return config?.targetHoursPerDay ?? 8;
   }
 }

@@ -1,30 +1,31 @@
 import JournalReporter from "./JournalReporter";
 import JournalAnalyzer from "./JournalAnalyzer";
+import { JournalClientConfiguration } from "./types";
 
 describe("JournalReporter", () => {
+  const clients: JournalClientConfiguration[] = [
+    {
+      client: "RoundUpClient",
+      targetHoursPerDay: 4,
+      activityRoundingIncrement: 15,
+      activityRoundingMethod: "roundUp",
+    },
+    {
+      client: "RoundClient",
+      targetHoursPerDay: 2,
+      activityRoundingIncrement: 15,
+      activityRoundingMethod: "round",
+    },
+  ];
   const analyzer = new JournalAnalyzer({
     basePath: "./testResource/journal",
     workDayClassifier: (day) => {
       const date = new Date(day.year, day.month - 1, day.day);
       return date.getDay() !== 0 && date.getDay() !== 6;
     },
+    clients,
   });
-  const reporter = new JournalReporter({
-    clients: [
-      {
-        client: "RoundUpClient",
-        targetHoursPerDay: 4,
-        activityRoundingIncrement: 15,
-        activityRoundingMethod: "roundUp",
-      },
-      {
-        client: "RoundClient",
-        targetHoursPerDay: 2,
-        activityRoundingIncrement: 15,
-        activityRoundingMethod: "round",
-      },
-    ],
-  });
+  const reporter = new JournalReporter({ clients });
 
   describe("report", () => {
     test("should accept empty data", () => {

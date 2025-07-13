@@ -4,8 +4,7 @@ import JournalAnalyzer, {
 import JournalReporter, {
   JournalReporterConfiguration,
 } from "./JournalReporter";
-import { Day, Month, TimesheetReport } from "./types";
-import JournalDay from "./JournalDay";
+import { Day, JournalDay, Month, TimesheetReport } from "./types";
 
 type JournalServiceConfiguration = {
   analyzer: JournalAnalyzerConfiguration;

@@ -1,5 +1,5 @@
 import JournalAnalyzer from "./JournalAnalyzer";
-import { Day } from "./types";
+import { Day, JournalClientConfiguration } from "./types";
 
 describe("JournalAnalyzer", () => {
   const basePath = "./testResource/journal";
@@ -7,45 +7,59 @@ describe("JournalAnalyzer", () => {
     const date = new Date(day.year, day.month - 1, day.day);
     return date.getDay() !== 0 && date.getDay() !== 6;
   };
-  const analyzer = new JournalAnalyzer({ basePath, workDayClassifier });
+  const clients: JournalClientConfiguration[] = [];
+  const analyzer = new JournalAnalyzer({
+    basePath,
+    workDayClassifier,
+    clients,
+  });
 
   describe("analyzeDay", () => {
     test("should accept a non-existent day", async () => {
-      const journalDay = await analyzer.analyzeDay({
-        year: 1950,
-        month: 1,
-        day: 1,
+      expect(
+        await analyzer.analyzeDay({
+          year: 1950,
+          month: 1,
+          day: 1,
+        }),
+      ).toStrictEqual({
+        date: "1950-01-01",
+        clients: [],
       });
-      expect(journalDay.getDate()).toBe("1950-01-01");
-      expect(journalDay.getClients()).toStrictEqual([]);
     });
 
     test("should accept an existing day", async () => {
-      const journalDay = await analyzer.analyzeDay({
-        year: 2020,
-        month: 1,
-        day: 1,
+      expect(
+        await analyzer.analyzeDay({
+          year: 2020,
+          month: 1,
+          day: 1,
+        }),
+      ).toStrictEqual({
+        date: "2020-01-01",
+        clients: [
+          {
+            client: "ClientA",
+            minutes: 60,
+            roundedMinutes: 60,
+            projects: [
+              {
+                project: "Wednesday",
+                minutes: 60,
+                roundedMinutes: 60,
+                activities: [
+                  {
+                    activity: "task",
+                    minutes: 60,
+                    roundedMinutes: 60,
+                    notes: [""],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
       });
-      expect(journalDay.getDate()).toBe("2020-01-01");
-      expect(journalDay.getClients()).toStrictEqual([
-        {
-          client: "ClientA",
-          minutes: 60,
-          projects: [
-            {
-              project: "Wednesday",
-              minutes: 60,
-              activities: [
-                {
-                  activity: "task",
-                  minutes: 60,
-                  notes: [""],
-                },
-              ],
-            },
-          ],
-        },
-      ]);
     });
   });
 
@@ -68,32 +82,32 @@ describe("JournalAnalyzer", () => {
           {
             client: "ClientA",
             minutes: 300,
-            minuteIncrements: [60, 60, 60, 60, 60],
+            roundedMinutes: 300,
             projects: [
               {
                 project: "Wednesday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Thursday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Friday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Saturday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Sunday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
             ],
           },
@@ -144,6 +158,7 @@ describe("JournalAnalyzer", () => {
         basePath,
         workDayClassifier,
         startOfWeek: 0,
+        clients,
       });
       const aggregation = await analyzer.analyzeWeek(0, relativeDay);
       expect(aggregation).toStrictEqual({
@@ -152,37 +167,37 @@ describe("JournalAnalyzer", () => {
           {
             client: "ClientA",
             minutes: 360,
-            minuteIncrements: [60, 60, 60, 60, 60, 60],
+            roundedMinutes: 360,
             projects: [
               {
                 project: "Monday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Tuesday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Wednesday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Thursday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Friday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
               {
                 project: "Saturday",
                 minutes: 60,
-                minuteIncrements: [60],
+                roundedMinutes: 60,
               },
             ],
           },
@@ -199,32 +214,32 @@ describe("JournalAnalyzer", () => {
       {
         client: "ClientA",
         minutes: 300,
-        minuteIncrements: [60, 60, 60, 60, 60],
+        roundedMinutes: 300,
         projects: [
           {
             project: "Monday",
             minutes: 60,
-            minuteIncrements: [60],
+            roundedMinutes: 60,
           },
           {
             project: "Tuesday",
             minutes: 60,
-            minuteIncrements: [60],
+            roundedMinutes: 60,
           },
           {
             project: "Wednesday",
             minutes: 60,
-            minuteIncrements: [60],
+            roundedMinutes: 60,
           },
           {
             project: "Thursday",
             minutes: 60,
-            minuteIncrements: [60],
+            roundedMinutes: 60,
           },
           {
             project: "Friday",
             minutes: 60,
-            minuteIncrements: [60],
+            roundedMinutes: 60,
           },
         ],
       },

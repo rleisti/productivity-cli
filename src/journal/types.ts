@@ -1,18 +1,40 @@
+export type JournalClientConfiguration = {
+  /** The client identifier. */
+  client: string;
+
+  /** The nominal working hours target per day. Defaults to 8. */
+  targetHoursPerDay?: number;
+
+  /** The number of minutes to round increments to. Defaults to 0. */
+  activityRoundingIncrement?: number;
+
+  /** The method to use for rounding activity minutes. Defaults to 'none'. */
+  activityRoundingMethod?: "none" | "round" | "roundUp";
+};
+
+export type JournalDay = {
+  date: string;
+  clients: ClientTimesheetEntry[];
+};
+
 export type ClientTimesheetEntry = {
   client: string;
   minutes: number;
+  roundedMinutes: number;
   projects: ProjectTimesheetEntry[];
 };
 
 export type ProjectTimesheetEntry = {
   project: string;
   minutes: number;
+  roundedMinutes: number;
   activities: ActivityTimesheetEntry[];
 };
 
 export type ActivityTimesheetEntry = {
   activity: string;
   minutes: number;
+  roundedMinutes: number;
   notes: string[];
 };
 
@@ -26,14 +48,14 @@ export type TimesheetAggregation = {
 export type ClientTimesheetAggregation = {
   client: string;
   minutes: number;
-  minuteIncrements: number[];
+  roundedMinutes: number;
   projects: ProjectTimesheetAggregation[];
 };
 
 export type ProjectTimesheetAggregation = {
   project: string;
   minutes: number;
-  minuteIncrements: number[];
+  roundedMinutes: number;
 };
 
 export type TimesheetReport = {
