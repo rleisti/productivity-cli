@@ -24,6 +24,7 @@ describe("JournalAnalyzer", () => {
         }),
       ).toStrictEqual({
         date: "1950-01-01",
+        totalMinutes: 0,
         clients: [],
       });
     });
@@ -37,6 +38,7 @@ describe("JournalAnalyzer", () => {
         }),
       ).toStrictEqual({
         date: "2020-01-01",
+        totalMinutes: 60,
         clients: [
           {
             client: "ClientA",

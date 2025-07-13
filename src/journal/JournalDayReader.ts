@@ -145,8 +145,11 @@ export default class JournalDayReader {
     });
 
     return {
-      date,
       clients,
+      date,
+      totalMinutes: clients
+        .map((client) => client.minutes)
+        .reduce((a, b) => a + b, 0),
     };
   }
 

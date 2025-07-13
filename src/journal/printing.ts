@@ -19,10 +19,7 @@ export function printJournalDay(journalDay: JournalDay) {
     return;
   }
 
-  const totalMinutes = clients
-    .map((client) => client.minutes)
-    .reduce((a, b) => a + b, 0);
-  console.log(`Total time spent: ${formatMinutes(totalMinutes)}`);
+  console.log(`Total time spent: ${formatMinutes(journalDay.totalMinutes)}`);
   console.log();
 
   for (const client of clients) {

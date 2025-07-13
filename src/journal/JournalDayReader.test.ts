@@ -25,6 +25,7 @@ describe("JournalDayReader", () => {
     expect(reader.read("2020-01-01", "")).toStrictEqual({
       date: "2020-01-01",
       clients: [],
+      totalMinutes: 0,
     });
   });
 
@@ -37,7 +38,11 @@ describe("JournalDayReader", () => {
     lines that do not 
     contain time sheet information.`,
       ),
-    ).toStrictEqual({ date: "2020-01-01", clients: [] });
+    ).toStrictEqual({
+      date: "2020-01-01",
+      clients: [],
+      totalMinutes: 0,
+    });
   });
 
   test("should accept a correctly formatted time sheet entry", () => {
@@ -50,6 +55,7 @@ describe("JournalDayReader", () => {
       ),
     ).toStrictEqual({
       date: "2020-01-01",
+      totalMinutes: 0,
       clients: [
         {
           client: "MyClient",
@@ -86,6 +92,7 @@ describe("JournalDayReader", () => {
       ),
     ).toStrictEqual({
       date: "2020-01-01",
+      totalMinutes: 30,
       clients: [
         {
           client: "MyClient",
@@ -129,6 +136,7 @@ describe("JournalDayReader", () => {
       ),
     ).toStrictEqual({
       date: "2020-01-01",
+      totalMinutes: 300,
       clients: [
         {
           client: "MyClient",
@@ -185,6 +193,7 @@ describe("JournalDayReader", () => {
       ),
     ).toStrictEqual({
       date: "2020-01-01",
+      totalMinutes: 30,
       clients: [
         {
           client: "MyClient",
@@ -225,6 +234,7 @@ describe("JournalDayReader", () => {
       ),
     ).toStrictEqual({
       date: "2020-01-01",
+      totalMinutes: 55,
       clients: [
         {
           client: "RoundUp",
@@ -284,6 +294,7 @@ describe("JournalDayReader", () => {
       ),
     ).toStrictEqual({
       date: "2020-01-01",
+      totalMinutes: 55,
       clients: [
         {
           client: "Round",
@@ -343,6 +354,7 @@ describe("JournalDayReader", () => {
       ),
     ).toStrictEqual({
       date: "2020-01-01",
+      totalMinutes: 55,
       clients: [
         {
           client: "RoundNone",

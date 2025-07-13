@@ -13,8 +13,9 @@ export type JournalClientConfiguration = {
 };
 
 export type JournalDay = {
-  date: string;
   clients: ClientTimesheetEntry[];
+  date: string;
+  totalMinutes: number;
 };
 
 export type ClientTimesheetEntry = {
