@@ -7,7 +7,7 @@
   "bin": "dist/index.js",
   "scripts": {
     "build": "bunx tsc",
-    "dev": "bun run build && dist/index.js",
+    "dev": "bun run build && bun dist/index.js",
     "link": "bun run build && npm link",
     "lint": "bunx eslint src/**",
     "prettier": "bunx prettier . --check",

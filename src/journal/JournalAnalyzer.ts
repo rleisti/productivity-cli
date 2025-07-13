@@ -3,7 +3,7 @@ import {
   JournalClientConfiguration,
   JournalDay,
   Month,
-  TimesheetAggregation,
+  TimesheetReport,
 } from "./types";
 import {
   dateToDay,
@@ -60,11 +60,12 @@ export default class JournalAnalyzer {
    *
    * @param month the month to analyze.
    */
-  public async analyzeMonth(month: Month): Promise<TimesheetAggregation> {
+  public async analyzeMonth(month: Month): Promise<TimesheetReport> {
     const startDate = new Date(month.year, month.month - 1);
     return this.analyzeDateRange(
       formatMonth(month),
       startDate,
+      this.deriveElapsedBenchmarkTimestamp(),
       (date) => date.getMonth() === month.month - 1,
     );
   }
@@ -80,7 +81,7 @@ export default class JournalAnalyzer {
   public async analyzeWeek(
     weekOffset: number = 0,
     relativeTo?: Day,
-  ): Promise<TimesheetAggregation> {
+  ): Promise<TimesheetReport> {
     const relativeToDay = relativeTo || {
       year: new Date().getFullYear(),
       month: new Date().getMonth() + 1,
@@ -101,22 +102,37 @@ export default class JournalAnalyzer {
     return this.analyzeDateRange(
       formatDayRange(dateToDay(startDate), 6),
       startDate,
+      this.deriveElapsedBenchmarkTimestamp(relativeTo),
       (date) =>
         date.getDate() == startDate.getDate() || date.getDay() !== startOfWeek,
     );
   }
 
+  /**
+   * Given a date representation the 'current day', derive a timestamp
+   * used to compare against a working day to determine target working hours
+   * remaining.
+   * @param day the reference day.
+   * @private
+   */
+  private deriveElapsedBenchmarkTimestamp(day?: Day): number {
+    const dayDate = day
+      ? new Date(day.year, day.month - 1, day.day + 1)
+      : new Date(
+          new Date().getFullYear(),
+          new Date().getMonth(),
+          new Date().getDate() + 1,
+        );
+    return dayDate.getTime();
+  }
+
   private async analyzeDateRange(
     range: string,
     startDate: Date,
+    elapsedBenchmarkTimestamp: number,
     condition: (date: Date) => boolean,
-  ): Promise<TimesheetAggregation> {
+  ): Promise<TimesheetReport> {
     const journalDays = [];
-    const elapsedBenchmarkDate = new Date(
-      new Date().getFullYear(),
-      new Date().getMonth(),
-      new Date().getDate() + 1,
-    ).getTime();
     let currentDate = startDate;
     let workDayCount = 0;
     let workDayElapsedCount = 0;
@@ -131,7 +147,7 @@ export default class JournalAnalyzer {
 
       if (this.config.workDayClassifier(day)) {
         workDayCount++;
-        if (currentDate.getTime() < elapsedBenchmarkDate) {
+        if (currentDate.getTime() < elapsedBenchmarkTimestamp) {
           workDayElapsedCount++;
         }
       }
@@ -144,11 +160,31 @@ export default class JournalAnalyzer {
     }
 
     const journalDayRange = new JournalDayRange(journalDays);
+    const aggregatedClients = journalDayRange.aggregate();
+    const reportClients = aggregatedClients.map((client) => {
+      const targetHoursPerDay = this.getClientTargetHoursPerDay(client.client);
+      return {
+        client: client.client,
+        actualMinutes: client.minutes,
+        roundedMinutes: client.roundedMinutes,
+        targetMinutes: targetHoursPerDay * 60 * workDayElapsedCount,
+        periodTargetMinutes: targetHoursPerDay * 60 * workDayCount,
+        projects: client.projects.map((project) => ({
+          project: project.project,
+          actualMinutes: project.minutes,
+          roundedMinutes: project.roundedMinutes,
+        })),
+      };
+    });
+
     return {
       range,
-      clients: journalDayRange.aggregate(),
-      workDaysInPeriod: workDayCount,
-      workDaysElapsed: workDayElapsedCount,
+      clients: reportClients,
     };
+  }
+
+  private getClientTargetHoursPerDay(client: string): number {
+    const config = this.config.clients.find((c) => c.client === client);
+    return config?.targetHoursPerDay ?? 8;
   }
 }

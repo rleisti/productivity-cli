@@ -39,13 +39,6 @@ export type ActivityTimesheetEntry = {
   notes: string[];
 };
 
-export type TimesheetAggregation = {
-  range: string;
-  clients: ClientTimesheetAggregation[];
-  workDaysInPeriod: number;
-  workDaysElapsed: number;
-};
-
 export type ClientTimesheetAggregation = {
   client: string;
   minutes: number;

@@ -209,17 +209,12 @@ async function createJournalService(args: Arguments): Promise<JournalService> {
   const config = await Config.load(args.config);
 
   return new JournalService({
-    analyzer: {
-      basePath: args.journalPath ?? config.journalBasePath,
-      startOfWeek: config.startOfWeek,
-      workDayClassifier: getWorkDayClassifier(
-        config.workDayClassifierName ?? "default",
-      ),
-      clients: config.clients,
-    },
-    reporter: {
-      clients: config.clients,
-    },
+    basePath: args.journalPath ?? config.journalBasePath,
+    startOfWeek: config.startOfWeek,
+    workDayClassifier: getWorkDayClassifier(
+      config.workDayClassifierName ?? "default",
+    ),
+    clients: config.clients,
   });
 }
 
