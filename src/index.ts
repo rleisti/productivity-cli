@@ -15,7 +15,7 @@ import PromptService from "./ai/PromptService";
 (async () => {
   await yargs()
     .scriptName("productivity-cli")
-    .usage("$0 <cmd> [args]")
+    .usage("$0 [cmd] [args]")
     .options({
       config: {
         type: "string",
@@ -30,6 +30,12 @@ import PromptService from "./ai/PromptService";
         alias: "j",
       },
     })
+    .command(
+      "$0",
+      "Generate a detailed report for today (default command)",
+      () => {},
+      async (args) => reportJournalForToday(args),
+    )
     .command(
       "init [path]",
       "Generate a template configuration file",
