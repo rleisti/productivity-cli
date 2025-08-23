@@ -2,6 +2,7 @@ journal_path = "~/journal"
 start_of_week = "sunday"
 work_days = "nova_scotia"
 ai_service = "anthropic"
+editor = "vim"
 
 [clients]
     [clients.a]

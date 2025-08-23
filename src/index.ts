@@ -11,6 +11,10 @@ import NoteGatherer from "./ai/NoteGatherer";
 import { getAiService } from "./ai/AiService";
 import NoteSummarizer from "./ai/NoteSummarizer";
 import PromptService from "./ai/PromptService";
+import { EditorService } from "./editor/EditorService";
+import { NodeProcessSpawner } from "./editor/NodeProcessSpawner";
+import * as path from "node:path";
+import { formatDay } from "./journal/util";
 
 (async () => {
   await yargs()
@@ -105,6 +109,17 @@ import PromptService from "./ai/PromptService";
       },
       (args) => summarizeNotesForRange(args),
     )
+    .command(
+      "journal [day]",
+      "Open a journal file in your preferred text editor",
+      (yargs) => {
+        yargs.positional("day", {
+          describe: "The date in format YYYY-MM-DD. Defaults to today.",
+          type: "string",
+        });
+      },
+      async (args) => openJournal(args),
+    )
     .help()
     .parse(hideBin(process.argv));
 
@@ -137,6 +152,10 @@ interface SummarizeArguments extends Arguments {
   startingDay?: string;
 }
 
+interface JournalArguments extends Arguments {
+  day?: string;
+}
+
 function init(args: Arguments) {
   const { path } = args as InitArguments;
   Config.init(path);
@@ -148,13 +167,8 @@ function init(args: Arguments) {
  * @param args command line arguments.
  */
 async function reportJournalForToday(args: Arguments) {
-  const today = new Date();
   const journalService = await createJournalService(args);
-  const data = await journalService.reportDay({
-    year: today.getFullYear(),
-    month: today.getMonth() + 1,
-    day: today.getDate(),
-  });
+  const data = await journalService.reportDay(getToday());
   printJournalDay(data);
 }
 
@@ -204,6 +218,34 @@ async function summarizeNotesForRange(args: Arguments) {
   const relativeTo = startingDay ? parseDay(startingDay) : undefined;
   const summary = await noteSummarizer.summarizeRange(days, relativeTo);
   console.log(summary);
+}
+
+async function openJournal(args: Arguments) {
+  const { day } = args as JournalArguments;
+  const config = await Config.load(args.config);
+  const editorService = new EditorService({
+    editor: config.editor,
+    processSpawner: new NodeProcessSpawner(),
+  });
+
+  const basePath = args.journalPath ?? config.journalBasePath;
+  const targetDay = day ? parseDay(day) : getToday();
+
+  const journalFilePath = path.join(
+    basePath,
+    "" + targetDay.year,
+    `${formatDay(targetDay)}.txt`,
+  );
+
+  await editorService.openFile(journalFilePath);
+}
+
+function getToday() {
+  return {
+    year: new Date().getFullYear(),
+    month: new Date().getMonth() + 1,
+    day: new Date().getDate(),
+  };
 }
 
 /**

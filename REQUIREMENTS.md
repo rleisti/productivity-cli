@@ -4,7 +4,7 @@
 
 ### 1.1 Configuration File Loading
 
-**REQ-001**: The system shal load configuration from a TOML file specified
+**REQ-001**: The system shall load configuration from a TOML file specified
 by the `--config` parameter with default value `.productivity-cli.toml`.
 
 **REQ-002**: When a configuration file does not exist, the system shall provide default configuration values.
@@ -56,6 +56,23 @@ then the system shall apply activity time rounding.
 - none
 - round
 - round_up
+
+### 2.3 Journal File Opening
+
+**REQ-062**: When the "journal" command is used then the system shall ensure the appropriate journal file
+exists and then open it using an external editor.
+
+**REQ-063**: When no date parameter is provided for the "journal" command then the system shall use the
+current date.
+
+**REQ-064** When a date parameter is provided for the "journal" command then the system shall use the provided date.
+
+**REQ-064**: When the "journal" command is used and the appropriate journal file does not yet exist then
+the system shall ensure the path to the file exists and shall create the file prior to opening the file
+with the external editor.
+
+**REQ-065**: The system shall allow specifying the external editor to use for opening file using the "editor"
+property in the configuration file.
 
 ### 2.3 Client Configuration
 

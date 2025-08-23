@@ -7,6 +7,17 @@ import { JournalClientConfiguration } from "./journal/types";
 type ConfigClientConfiguration = JournalClientConfiguration &
   NoteGathererClientConfiguration;
 
+type ConfigConstructorOptions = {
+  journalBasePath: string;
+  startOfWeek: number;
+  workDayClassifierName?: string;
+  aiService?: string;
+  editor?: string;
+  clients?: ConfigClientConfiguration[];
+  prompts?: Prompts;
+  anthropic?: AnthropicAiModelConfiguration;
+};
+
 export type Prompts = {
   summarizeNotes?: string;
 };
@@ -19,23 +30,26 @@ export default class Config {
   public readonly startOfWeek: number;
   public readonly workDayClassifierName?: string;
   public readonly aiService?: string;
+  public readonly editor: string;
   public readonly clients: ConfigClientConfiguration[];
   public readonly prompts: Prompts;
   public readonly anthropic?: AnthropicAiModelConfiguration;
 
-  constructor(
-    journalBasePath: string,
-    startOfWeek: number,
-    workDayClassifierName?: string,
-    aiService?: string,
-    clients?: ConfigClientConfiguration[],
-    prompts?: Prompts,
-    anthropic?: AnthropicAiModelConfiguration,
-  ) {
+  constructor({
+    journalBasePath,
+    startOfWeek,
+    workDayClassifierName,
+    aiService,
+    editor,
+    clients,
+    prompts,
+    anthropic,
+  }: ConfigConstructorOptions) {
     this.journalBasePath = journalBasePath;
     this.startOfWeek = startOfWeek;
     this.workDayClassifierName = workDayClassifierName;
     this.aiService = aiService;
+    this.editor = editor ?? "vim";
     this.clients = clients ?? [];
     this.prompts = prompts ?? {};
     this.anthropic = anthropic;
@@ -64,6 +78,7 @@ export default class Config {
     const startOfWeek = mapStartOfWeek(data.start_of_week);
     const workDayClassifierName = data.work_days;
     const aiService = data.ai_service;
+    const editor = data.editor;
 
     const clients = [];
     if (data.clients) {
@@ -94,15 +109,16 @@ export default class Config {
         }
       : undefined;
 
-    return new Config(
+    return new Config({
       journalBasePath,
       startOfWeek,
       workDayClassifierName,
       aiService,
+      editor,
       clients,
       prompts,
       anthropic,
-    );
+    });
   }
 
   /**
@@ -132,6 +148,9 @@ work_days = "general"
 # May be one of "anthropic", or "none".
 # The "none" model is only useful for investigation, as it just returns the prompt.
 aiService = "anthropic"
+
+# Specify the text editor command to use for opening files.
+editor = "vim"
 
 [clients]
     [clients.a]
@@ -213,6 +232,7 @@ type ConfigFile = {
   start_of_week?: string;
   work_days?: string;
   ai_service?: string;
+  editor?: string;
   clients?: ClientConfig[];
   prompts?: PromptConfig;
   anthropic?: AnthropicConfig;
