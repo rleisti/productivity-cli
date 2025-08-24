@@ -1,7 +1,7 @@
 import path from "node:path";
 import fs from "node:fs";
-import os from "node:os";
 import { ProcessSpawner } from "./ProcessSpawner";
+import { expandTildePath } from "../util";
 
 type EditorConfiguration = {
   editor: string;
@@ -27,7 +27,7 @@ export class EditorService {
    * @param filePath the path to the file.
    */
   public async openFile(filePath: string): Promise<void> {
-    const expandedFilePath = this.expandTildePath(filePath);
+    const expandedFilePath = expandTildePath(filePath);
     const basePath = path.dirname(expandedFilePath);
     if (!fs.existsSync(basePath)) {
       fs.mkdirSync(basePath, { recursive: true });
@@ -61,19 +61,6 @@ export class EditorService {
         reject(error);
       });
     });
-  }
-
-  /**
-   * Expand tilde (~) in file paths to the user's home directory.
-   *
-   * @param filePath the path that may contain a tilde
-   * @returns the expanded path
-   */
-  private expandTildePath(filePath: string): string {
-    if (filePath.startsWith("~")) {
-      return path.join(os.homedir(), filePath.slice(1));
-    }
-    return filePath;
   }
 
   /**

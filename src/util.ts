@@ -1,8 +1,23 @@
 import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+
+/**
+ * Expand tilde (~) in file paths to the user's home directory.
+ *
+ * @param filePath the path that may contain a tilde
+ * @returns the expanded path
+ */
+export function expandTildePath(filePath: string): string {
+  if (filePath.startsWith("~")) {
+    return path.join(os.homedir(), filePath.slice(1));
+  }
+  return filePath;
+}
 
 export async function readOptionalFile(path: string): Promise<string> {
   const readPromise = new Promise((resolve) => {
-    fs.readFile(path, "utf8", (err, data) => {
+    fs.readFile(expandTildePath(path), "utf8", (err, data) => {
       if (!err) {
         resolve(data);
       } else {

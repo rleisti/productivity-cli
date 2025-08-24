@@ -1,5 +1,6 @@
 import fs from "fs";
 import { Prompts } from "../Config";
+import { expandTildePath } from "../util";
 
 export type PromptName = "summarizeNotes";
 
@@ -30,7 +31,7 @@ export default class PromptService {
 
   private async getPromptFromFile(path: string): Promise<string> {
     return new Promise((resolve, reject) => {
-      fs.readFile(path, "utf8", (error, data) => {
+      fs.readFile(expandTildePath(path), "utf8", (error, data) => {
         if (error) {
           reject(error);
         }
