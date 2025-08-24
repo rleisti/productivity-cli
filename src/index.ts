@@ -13,8 +13,6 @@ import NoteSummarizer from "./ai/NoteSummarizer";
 import PromptService from "./ai/PromptService";
 import { EditorService } from "./editor/EditorService";
 import { NodeProcessSpawner } from "./editor/NodeProcessSpawner";
-import * as path from "node:path";
-import { formatDay } from "./journal/util";
 
 (async () => {
   await yargs()
@@ -223,21 +221,13 @@ async function summarizeNotesForRange(args: Arguments) {
 async function openJournal(args: Arguments) {
   const { day } = args as JournalArguments;
   const config = await Config.load(args.config);
+  const journalService = await createJournalService(args);
   const editorService = new EditorService({
     editor: config.editor,
     processSpawner: new NodeProcessSpawner(),
   });
-
-  const basePath = args.journalPath ?? config.journalBasePath;
   const targetDay = day ? parseDay(day) : getToday();
-
-  const journalFilePath = path.join(
-    basePath,
-    "" + targetDay.year,
-    `${formatDay(targetDay)}.txt`,
-  );
-
-  await editorService.openFile(journalFilePath);
+  await editorService.openFile(journalService.getJournalFilePath(targetDay));
 }
 
 function getToday() {

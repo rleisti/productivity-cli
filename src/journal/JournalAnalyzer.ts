@@ -10,6 +10,7 @@ import {
   formatDay,
   formatDayRange,
   formatMonth,
+  getJournalFilePath,
   loadJournalFile,
 } from "./util";
 import JournalDayRange from "./JournalDayRange";
@@ -106,6 +107,13 @@ export default class JournalAnalyzer {
       (date) =>
         date.getDate() == startDate.getDate() || date.getDay() !== startOfWeek,
     );
+  }
+
+  /**
+   * Return the journal file path for a given day
+   */
+  public getJournalFilePath(day: Day): string {
+    return getJournalFilePath(this.config.basePath, day);
   }
 
   /**

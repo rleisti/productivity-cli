@@ -23,11 +23,13 @@ export function dateToDay(date: Date): Day {
   };
 }
 
+export function getJournalFilePath(basePath: string, day: Day): string {
+  return path.join(basePath, "" + day.year, `${formatDay(day)}.txt`);
+}
+
 export async function loadJournalFile(
   basePath: string,
   day: Day,
 ): Promise<string> {
-  return readOptionalFile(
-    path.join(basePath, "" + day.year, `${formatDay(day)}.txt`),
-  );
+  return readOptionalFile(getJournalFilePath(basePath, day));
 }

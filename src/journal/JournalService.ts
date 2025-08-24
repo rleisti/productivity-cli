@@ -44,4 +44,11 @@ export default class JournalService {
   public async reportMonth(month: Month): Promise<TimesheetReport> {
     return await this.analyzer.analyzeMonth(month);
   }
+
+  /**
+   * Return the journal file path for a given day.
+   */
+  public getJournalFilePath(day: Day): string {
+    return this.analyzer.getJournalFilePath(day);
+  }
 }
