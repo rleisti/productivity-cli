@@ -43,7 +43,6 @@ export class EditorService {
         [expandedFilePath],
         {
           stdio: "inherit",
-          shell: true,
         },
       );
 

@@ -5,15 +5,13 @@ import * as os from "node:os";
 import { ChildProcess } from "node:child_process";
 import { ProcessSpawner } from "./ProcessSpawner";
 
-// Create a test double for ProcessSpawner
 class MockProcessSpawner implements ProcessSpawner {
   public spawn = jest.fn();
 }
 
-let mockProcessSpawner: MockProcessSpawner;
-
 describe("EditorService", () => {
   const testDir = path.join("testResource", "temp", "editor");
+  let mockProcessSpawner: MockProcessSpawner;
 
   beforeEach(() => {
     mockProcessSpawner = new MockProcessSpawner();
@@ -145,7 +143,6 @@ describe("EditorService", () => {
           [expandedPath],
           {
             stdio: "inherit",
-            shell: true,
           },
         );
       } finally {
@@ -195,7 +192,6 @@ describe("EditorService", () => {
           [expandedPath],
           {
             stdio: "inherit",
-            shell: true,
           },
         );
       } finally {
@@ -233,7 +229,6 @@ describe("EditorService", () => {
         [testFilePath],
         {
           stdio: "inherit",
-          shell: true,
         },
       );
     });
@@ -348,7 +343,6 @@ describe("EditorService", () => {
         [testFilePath],
         {
           stdio: "inherit",
-          shell: true,
         },
       );
     });
