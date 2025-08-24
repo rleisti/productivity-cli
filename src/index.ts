@@ -13,6 +13,7 @@ import NoteSummarizer from "./ai/NoteSummarizer";
 import PromptService from "./ai/PromptService";
 import { EditorService } from "./editor/EditorService";
 import { NodeProcessSpawner } from "./editor/NodeProcessSpawner";
+import { ClientNotesService } from "./notes/ClientNotesService";
 
 (async () => {
   await yargs()
@@ -118,6 +119,21 @@ import { NodeProcessSpawner } from "./editor/NodeProcessSpawner";
       },
       async (args) => openJournal(args),
     )
+    .command(
+      "note <client> [day]",
+      "Open a daily notes file for a given client",
+      (yargs) => {
+        yargs.positional("client", {
+          description: "The client ID",
+          type: "string",
+        });
+        yargs.positional("day", {
+          describe: "The date in format YYYY-MM-DD. Defaults to today.",
+          type: "string",
+        });
+      },
+      async (args) => openNotes(args),
+    )
     .help()
     .parse(hideBin(process.argv));
 
@@ -151,6 +167,11 @@ interface SummarizeArguments extends Arguments {
 }
 
 interface JournalArguments extends Arguments {
+  day?: string;
+}
+
+interface NoteArguments extends Arguments {
+  client: string;
   day?: string;
 }
 
@@ -228,6 +249,23 @@ async function openJournal(args: Arguments) {
   });
   const targetDay = day ? parseDay(day) : getToday();
   await editorService.openFile(journalService.getJournalFilePath(targetDay));
+}
+
+async function openNotes(args: Arguments) {
+  const { client, day } = args as NoteArguments;
+  const config = await Config.load(args.config);
+  const editorService = new EditorService({
+    editor: config.editor,
+    processSpawner: new NodeProcessSpawner(),
+  });
+  const clientConfig = config.clients.find((c) => c.client === client);
+  if (clientConfig === undefined) {
+    throw new Error(`Client ${client} not found in configuration`);
+  }
+  const targetDay = day ? parseDay(day) : getToday();
+  await editorService.openFile(
+    new ClientNotesService(clientConfig).getDailyNotesPath(targetDay),
+  );
 }
 
 function getToday() {

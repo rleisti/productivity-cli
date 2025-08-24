@@ -1,20 +1,16 @@
 import { loadJournalFile } from "../journal/util";
-import { readOptionalFile, zeroPad } from "../util";
+import { readOptionalFile } from "../util";
 import { Day } from "../journal/types";
+import {
+  ClientNotesConfiguration,
+  ClientNotesService,
+} from "../notes/ClientNotesService";
 
 type NoteGathererConfiguration = {
   /** Root directory of the journal files. */
   journalBasePath: string;
 
-  clients: NoteGathererClientConfiguration[];
-};
-
-export type NoteGathererClientConfiguration = {
-  /** The client identifier. */
-  client: string;
-
-  /** The path and file pattern for notes files. */
-  notesFilePattern: string;
+  clients: ClientNotesConfiguration[];
 };
 
 const journalLineRegex = /^(\d{2}:\d{2})\s+([A-Za-z0-9_:-]+)\s*(.*)$/;
@@ -66,7 +62,7 @@ export default class NoteGatherer {
   }
 
   private async createClientNote(
-    client: NoteGathererClientConfiguration,
+    client: ClientNotesConfiguration,
     day: Day,
   ): Promise<string> {
     const filePath = this.createClientNotePath(client, day);
@@ -86,13 +82,10 @@ export default class NoteGatherer {
   }
 
   private createClientNotePath(
-    client: NoteGathererClientConfiguration,
+    client: ClientNotesConfiguration,
     day: Day,
   ): string {
-    return client.notesFilePattern
-      .replace(/\{year}/g, zeroPad(day.year, 4))
-      .replace(/\{month}/g, zeroPad(day.month, 2))
-      .replace(/\{day}/g, zeroPad(day.day, 2));
+    return new ClientNotesService(client).getDailyNotesPath(day);
   }
 }
 

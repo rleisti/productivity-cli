@@ -1,11 +1,11 @@
 import * as toml from "toml";
 import * as fs from "node:fs";
 import { AnthropicAiModelConfiguration } from "./ai/AnthropicAiService";
-import { NoteGathererClientConfiguration } from "./ai/NoteGatherer";
 import { JournalClientConfiguration } from "./journal/types";
+import { ClientNotesConfiguration } from "./notes/ClientNotesService";
 
 type ConfigClientConfiguration = JournalClientConfiguration &
-  NoteGathererClientConfiguration;
+  ClientNotesConfiguration;
 
 type ConfigConstructorOptions = {
   journalBasePath: string;
@@ -155,7 +155,7 @@ editor = "vim"
 [clients]
     [clients.a]
     
-    # Identifies the client in journal files.
+    # Identifies the client.
     id = "ClientID"
         
     # The nominal number of hours to work per day for this client.
@@ -169,7 +169,7 @@ editor = "vim"
     rounding_type = "none"
     
     # A file pattern to use for gathering notes for this client.
-    # The following placeholders will be subsituted:
+    # The following placeholders will be substituted:
     # - {year} the 4 digit year
     # - {month} the 2 digit month
     # - {day} the 2 digit day

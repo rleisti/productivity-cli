@@ -30,6 +30,11 @@ by the `--config` parameter with default value `.productivity-cli.toml`.
 - general (default)
 - nova_scotia
 
+### 1.3 Configuration Settings
+
+**REQ-065**: The system shall allow specifying an external editor to use for opening files using the "editor"
+property in the configuration file.
+
 ## 2. Journal File Processing
 
 ### 2.1 File Structure Requirements
@@ -44,9 +49,9 @@ in format `HH:MM ClientID:ProjectID:ActivityID arbitrary notes`.
 
 ### 2.2 Time Entry Processing
 
-**REQ-010**: The system shal calculate time durations between consecutive time entries.
+**REQ-010**: The system shall calculate time durations between consecutive time entries.
 
-**REQ-011**: The system shal aggregate time by client, project, and activity hierarchically.
+**REQ-011**: The system shall aggregate time by client, project, and activity hierarchically.
 
 **REQ-012**: While client configuration specifies a rounding method other than 'none' and rounding_increment > 0,
 then the system shall apply activity time rounding.
@@ -57,7 +62,7 @@ then the system shall apply activity time rounding.
 - round
 - round_up
 
-### 2.3 Journal File Opening
+### 2.3 Journal File Editing
 
 **REQ-062**: When the "journal" command is used then the system shall ensure the appropriate journal file
 exists and then open it using an external editor.
@@ -70,9 +75,6 @@ current date.
 **REQ-064**: When the "journal" command is used and the appropriate journal file does not yet exist then
 the system shall ensure the path to the file exists and shall create the file prior to opening the file
 with the external editor.
-
-**REQ-065**: The system shall allow specifying the external editor to use for opening file using the "editor"
-property in the configuration file.
 
 ### 2.3 Client Configuration
 
@@ -124,7 +126,7 @@ Nova Scotia statutory holidays from work days.
 **REQ-030**: The system shall handle holiday observation rules where holidays falling on weekends
 are observed on adjacent work days.
 
-## 4. AI-Powered Note Summarization
+## 4. Note Management
 
 ### 4.1 Note Gathering
 
@@ -136,7 +138,25 @@ are observed on adjacent work days.
 
 **REQ-034**: The system shall combine notes from multiple sources with XML-style tags for organization.
 
-### 4.2 AI Service Integration
+### 4.2 Journal File Editing
+
+**REQ-066**: When the "note" command is used, then the system shall ensure the appropriate note file
+exists and then open it using an external editor.
+
+**REQ-067**: The system shall accept a mandatory "client" parameter for the "note" command to identify
+which client the note belongs to. The value of the "client" parameter must correspond to a client identifier
+specified in the configuration file.
+
+**REQ-068**: When no date parameter is provided for the "note" command then the system shall use the
+current date.
+
+**REQ-069** When a date parameter is provided for the "note" command then the system shall use the provided date.
+
+**REQ-070**: When the "note" command is used and the appropriate note file does not yet exist then
+the system shall ensure the path to the file exists and shall create the file prior to opening the file
+with the external editor.
+
+### 4.3 AI Service Integration
 
 **REQ-035**: The system shall support extensible AI API integration for note summarization.
 
@@ -146,7 +166,7 @@ are observed on adjacent work days.
 
 **REQ-038**: The system shall substitute {notes} placeholder in prompts with gathered note content.
 
-### 4.3 Summarization Commands
+### 4.4 Summarization Commands
 
 **REQ-039**: The system shall generate summaries for a configurable number of days, defaulting to 7 days.
 
