@@ -110,6 +110,16 @@ describe("EditorService", () => {
       assertEditorWasInvoked(testFilePath, "code");
     });
 
+    test("should handle arguments in the editor command", async () => {
+      const editorService = new EditorService({
+        editor: 'editor --arg1 "quoted arg"',
+        processSpawner: mockProcessSpawner,
+      });
+      const testFilePath = path.join(testDir, "test-file.txt");
+      await editorService.openFile(testFilePath);
+      assertEditorWasInvoked(testFilePath, "editor", ["--arg1", "quoted arg"]);
+    });
+
     test("should reject when editor exits with non-zero code", async () => {
       const testFilePath = path.join(testDir, "test-file.txt");
       mockFailedSpawn();
@@ -151,10 +161,11 @@ describe("EditorService", () => {
   function assertEditorWasInvoked(
     testFilePath: string,
     editor: string = "vim",
+    args: string[] = [],
   ) {
     expect(mockProcessSpawner.spawn).toHaveBeenCalledWith(
       editor,
-      [testFilePath],
+      [...args, testFilePath],
       {
         stdio: "inherit",
       },

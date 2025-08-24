@@ -38,9 +38,12 @@ export class EditorService {
     }
 
     return new Promise<void>((resolve, reject) => {
-      const editorProcess = this.config.processSpawner.spawn(
+      const { editorCommand, args } = this.extractEditorArgs(
         this.config.editor,
-        [expandedFilePath],
+      );
+      const editorProcess = this.config.processSpawner.spawn(
+        editorCommand,
+        [...args, expandedFilePath],
         {
           stdio: "inherit",
         },
@@ -71,5 +74,46 @@ export class EditorService {
       return path.join(os.homedir(), filePath.slice(1));
     }
     return filePath;
+  }
+
+  /**
+   * Extract out the command portion and any additional arguments
+   * from the editor command.
+   */
+  private extractEditorArgs(command: string): {
+    editorCommand: string;
+    args: string[];
+  } {
+    const parts: string[] = [];
+    let current = "";
+    let inQuotes = false;
+    let quoteChar = "";
+
+    for (let i = 0; i < command.length; i++) {
+      const char = command[i];
+
+      if ((char === '"' || char === "'") && !inQuotes) {
+        inQuotes = true;
+        quoteChar = char;
+      } else if (char === quoteChar && inQuotes) {
+        inQuotes = false;
+        quoteChar = "";
+      } else if (char === " " && !inQuotes) {
+        if (current.trim()) {
+          parts.push(current.trim());
+          current = "";
+        }
+      } else {
+        current += char;
+      }
+    }
+
+    if (current.trim()) {
+      parts.push(current.trim());
+    }
+
+    const editorCommand = parts[0] || "";
+    const args = parts.slice(1);
+    return { editorCommand, args };
   }
 }
