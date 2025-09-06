@@ -3,9 +3,11 @@ import * as fs from "node:fs";
 import { AnthropicAiModelConfiguration } from "./ai/AnthropicAiService";
 import { JournalClientConfiguration } from "./journal/types";
 import { ClientNotesConfiguration } from "./notes/ClientNotesService";
+import { ProjectClientConfiguration } from "./projects/ProjectService";
 
 type ConfigClientConfiguration = JournalClientConfiguration &
-  ClientNotesConfiguration;
+  ClientNotesConfiguration &
+  ProjectClientConfiguration;
 
 type ConfigConstructorOptions = {
   journalBasePath: string;
@@ -93,6 +95,7 @@ export default class Config {
             clientValues.rounding_type ?? "none",
           ),
           notesFilePattern: clientValues.notes_file_pattern ?? "",
+          projectFilePattern: clientValues.project_file_pattern ?? "",
         });
       }
     }
@@ -174,6 +177,11 @@ editor = "vim"
     # - {month} the 2 digit month
     # - {day} the 2 digit day
     notes_file_pattern = "notes/ClientID/{year}-{month}-{day}.txt"
+    
+    # A file pattern to use for project definition files for this client.
+    # The following placeholders will be substituted:
+    # - {id} the project identifier
+    project_file_pattern = "projects/ClientID/{id}.md"
         
 [prompts]
 # The path to the file containing the prompt to use for summarizing notes.
@@ -244,6 +252,7 @@ type ClientConfig = {
   rounding_increment?: number;
   rounding_type?: string;
   notes_file_pattern?: string;
+  project_file_pattern?: string;
 };
 
 type PromptConfig = {

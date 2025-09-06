@@ -11,6 +11,7 @@ editor = "vim"
     rounding_increment = 15
     rounding_type = "round_up"
     notes_file_pattern = "./notes/{year}/{year}-{month}-{day}.txt"
+    project_file_pattern = "testResource/projects/ClientA/{id}.md"
 
     [clients.b]
     id = "ClientB"
