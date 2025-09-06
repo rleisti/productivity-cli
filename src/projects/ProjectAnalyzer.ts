@@ -61,7 +61,7 @@ export class ProjectAnalyzer {
     return "in-progress";
   }
 
-  private findCriticalPath(tasks: TasksSection): string[] {
+  public findCriticalPath(tasks: TasksSection): string[] {
     const taskIds = Object.keys(tasks);
     const visited = new Set<string>();
     const paths: string[][] = [];

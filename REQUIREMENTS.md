@@ -246,8 +246,8 @@ a summary report for the specified project.
 
 ### 5.3 Project Visualization
 
-**REQ-080**: When the system is invoked with the 'project-visualize' command then the system shall generate an
-image depicting the project work breakdown structure.
+**REQ-080**: When the system is invoked with the 'project-visualize' command then the system shall generate a
+graph (mermaidJS file) depicting the project work breakdown structure.
 
 **REQ-081**: The 'project-visualize' command shall accept the following positional parameters:
 
@@ -258,7 +258,7 @@ image depicting the project work breakdown structure.
 file name.
 
 **REQ-083**: When no `--output` parameter is specified and the `project-visualize` command is invoked, then the
-system shall generate an image file in the current working directory with the name `project.png`.
+system shall generate an image file in the current working directory with the name `project.mmd`.
 
 **REQ-084**: The project visualization shall display a graph where edges represent tasks and vertices are used to
 group dependencies for the task, by having tasks which are dependencies point at a vertex while tasks which are
@@ -273,7 +273,7 @@ critical path algorithm considering all tasks which point at the vertex.
 
 ### 6.1 Command Structure
 
-**REQ-042**: The system shall provide commands: init, today, day, week, month, summarize, journal, note, project-summary.
+**REQ-042**: The system shall provide commands: init, today, day, week, month, summarize, journal, note, project-summary, project-visualize.
 
 **REQ-043**: The system shall support global options: --config (-c).
 
