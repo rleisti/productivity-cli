@@ -86,6 +86,8 @@ The codebase uses dependency injection patterns, particularly in service constru
 
 Test resources in `testResource/` provide realistic data for development and testing scenarios.
 
-- when drafting a commit message, use the semantic commit message format as descibed at https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
+- When drafting a commit message, use the semantic commit message format as descibed at https://gist.github.com/joshbuchea/6f47e86d2510bce28f8e7f42ae84c716
 
-- when implementing a new feature, make any necessary changes to REQUIREMENT.md to reflect any introduced changes
+- Refer to the @REQUIREMENTS.md file for the project's requirements.
+
+- When implementing a new feature, make any necessary changes to @REQUIREMENT.md to reflect any introduced changes
