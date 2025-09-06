@@ -1,6 +1,6 @@
 {
   "name": "productivity-cli",
-  "version": "1.4.2",
+  "version": "1.5.0",
   "private": true,
   "description": "A command line utility for various productivity tasks",
   "main": "index.ts",
