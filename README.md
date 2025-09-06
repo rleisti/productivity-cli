@@ -102,6 +102,56 @@ do the following:
     In here I can put whatever I want, but it will not be used by the AI.
     </secret>
 
+### Projects
+
+The tool supports project design and management. Each client may have one or more
+projects, and these projects are defined in markdown files. Below is a sample project:
+
+````markdown
+# Project X
+
+Some description about the project
+
+## Admin
+
+```toml
+start_date: 2025-05-01
+
+[person]
+[person.me]
+availability = [ "2025-05-01 to 2025-12-20 at 7 hours" ]
+[person.you]
+availability = [ "2025-07-01 to 2025-08-31 at 3.5 hours", "2025-09-01 to 2025-12-20 at 3.5 hours" ]
+```
+
+## Tasks
+
+```toml
+[T001]
+summary = "Requirements"
+description = "Collect and analyze requirements"
+estimate_days = { min: 10, max: 40, expected: 15 }
+status = "complete"
+owners = ["me"]
+
+[T003]
+summary = "UX"
+description = "User experience design"
+dependencies = ["T001"]
+estimate_days = { min: 5, max: 30, expected: 8 }
+owners = ["me", "you"]
+status = "in-progress"
+
+[T004]
+summary = "Dev"
+description = "Development"
+dependencies = ["T001", "T003"]
+estimate_days = { min: 10, max: 40, expected: 15 }
+owners = ["you"]
+status = "not-started"
+```
+````
+
 # Development
 
 This project uses:
@@ -129,6 +179,9 @@ bun smoke           # run a quick smoke test (not a real test)
 <root>
     |-- src/          # Source files
     |-- src/ai        # Code related to the AI-enabled functionality
+    |-- src/editor    # Code related to launching an external editor
     |-- src/journal   # Code related to journal and timesheet processing
+    |-- src/notes     # Code related to client notes
+    |-- src/projects  # Code related to project management
     |-- testResource/ # Test resource files
 ```
