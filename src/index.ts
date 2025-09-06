@@ -14,6 +14,8 @@ import PromptService from "./ai/PromptService";
 import { EditorService } from "./editor/EditorService";
 import { NodeProcessSpawner } from "./editor/NodeProcessSpawner";
 import { ClientNotesService } from "./notes/ClientNotesService";
+import { ProjectService } from "./projects/ProjectService";
+import { printProjectSummary } from "./projects/printing";
 
 (async () => {
   await yargs()
@@ -134,6 +136,21 @@ import { ClientNotesService } from "./notes/ClientNotesService";
       },
       async (args) => openNotes(args),
     )
+    .command(
+      "project-summary <client> <project>",
+      "Generate a summary report for the specified project",
+      (yargs) => {
+        yargs.positional("client", {
+          description: "The client identifier",
+          type: "string",
+        });
+        yargs.positional("project", {
+          description: "The project identifier",
+          type: "string",
+        });
+      },
+      async (args) => generateProjectSummary(args),
+    )
     .help()
     .parse(hideBin(process.argv));
 
@@ -173,6 +190,11 @@ interface JournalArguments extends Arguments {
 interface NoteArguments extends Arguments {
   client: string;
   day?: string;
+}
+
+interface ProjectSummaryArguments extends Arguments {
+  client: string;
+  project: string;
 }
 
 function init(args: Arguments) {
@@ -266,6 +288,21 @@ async function openNotes(args: Arguments) {
   await editorService.openFile(
     new ClientNotesService(clientConfig).getDailyNotesPath(targetDay),
   );
+}
+
+async function generateProjectSummary(args: Arguments) {
+  const { client, project } = args as ProjectSummaryArguments;
+  const config = await Config.load(args.config);
+
+  const projectService = new ProjectService({
+    workDayClassifier: getWorkDayClassifier(
+      config.workDayClassifierName ?? "general",
+    ),
+    clients: config.clients,
+  });
+
+  const summary = await projectService.generateProjectSummary(client, project);
+  printProjectSummary(summary, client, project);
 }
 
 function getToday() {

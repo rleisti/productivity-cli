@@ -24,6 +24,7 @@ describe("Config", () => {
             activityRoundingIncrement: 15,
             activityRoundingMethod: "roundUp",
             notesFilePattern: "./notes/{year}/{year}-{month}-{day}.txt",
+            projectFilePattern: "testResource/projects/ClientA/{id}.md",
           },
           {
             client: "ClientB",
@@ -31,6 +32,7 @@ describe("Config", () => {
             activityRoundingIncrement: 30,
             activityRoundingMethod: "round",
             notesFilePattern: "",
+            projectFilePattern: "",
           },
           {
             client: "ClientC",
@@ -38,6 +40,7 @@ describe("Config", () => {
             activityRoundingIncrement: 0,
             activityRoundingMethod: "none",
             notesFilePattern: "",
+            projectFilePattern: "",
           },
           {
             client: "ClientD",
@@ -45,6 +48,7 @@ describe("Config", () => {
             activityRoundingIncrement: 0,
             activityRoundingMethod: "none",
             notesFilePattern: "",
+            projectFilePattern: "",
           },
         ],
         prompts: {
