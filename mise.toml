@@ -1,0 +1,27 @@
+[tools]
+bun = "latest"
+node = "24"
+
+[tasks.install]
+description = "Install dependencies"
+run = "bun install"
+
+[tasks.build]
+description = "Build the project"
+run = "bun run build"
+
+[tasks.test]
+description = "Run tests"
+run = "bun test"
+
+[tasks.smoke]
+description = "Run smoke tests (manual verification)"
+run = "bun run smoke"
+
+[tasks.fix]
+description = "Apply automatic fixes"
+run = "bun prettier:fix"
+
+[tasks.link]
+description = "Create a symbolic link to the app executable"
+run = "bun run link"

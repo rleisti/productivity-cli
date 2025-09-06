@@ -15,13 +15,12 @@ also including their own "side" projects.
 
 ## Prerequisites
 
-- **npm**, tested with version 10.9.2
-- **node**, tested with version 22.16.0
+- **mise**, tested with version 2025.9.2 linux-x64 (2025-09-05)
 
 ## Installation
 
 ```bash
-bun run link
+mise run link
 ```
 
 ## Usage
@@ -114,13 +113,11 @@ This project uses:
 ## Scripts
 
 ```
-bun run build       # compile the project
-bun dev             # run the command line interface; additional arguments are accepted
-bun lint            # check for code quality issues
-bun prettier        # check for code formatting issues
-bun prettier:fix    # fix any code formatting issues
-bun test            # run the unit tests
-bun smoke           # run a quick smoke test (not a real test)
+mise run build      # compile the project
+mise run dev        # run the command line interface; additional arguments are accepted
+mise run fix        # fix any code formatting issues
+mise run test       # run the unit tests, and also check for code quality and formatting issues
+mise run smoke      # run a quick smoke test (not a real test)
 ```
 
 ## Project Structure
