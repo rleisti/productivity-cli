@@ -40,19 +40,19 @@ Some description about the project
 
 ## Admin
 
-\```toml
+```toml
 start_date: 2025-05-01
 
 [person]
 [person.me]
-availability = [ "2025-05-01 to 2025-12-20 at 100%" ]
+availability = [ "2025-05-01 to 2025-12-20 at 7 hours" ]
 [person.you]
-availability = [ "2025-07-01 to 2025-08-31 at 50%", "2025-09-01 to 2025-12-20 at 100%" ]
-\```
+availability = [ "2025-07-01 to 2025-08-31 at 3.5 hours", "2025-09-01 to 2025-12-20 at 3.5 hours" ]
+```
 
 ## Tasks
 
-\```toml
+```toml
 [T001]
 summary = "Requirements"
 description = "Collect and analyze requirements"
@@ -63,11 +63,11 @@ owners = ["me"]
 [T002]
 summary = "UX"
 description = "User experience design"
-depends_on = ["T001"]
+dependencies = ["T001"]
 estimate_days = { min: 5, max: 30, expected: 8 }
 owners = ["me", "you"]
-status = "waiting"
-\```
+status = "not-started"
+```
 ````
 
 ## Project Tools

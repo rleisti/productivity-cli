@@ -175,18 +175,87 @@ with the external editor.
 **REQ-041**: When the system is invoked to produce a summary for a time period where no notees exist then
 the system shall return "No notes found for the specified period".
 
-## 5. Command Line Interface
+## 5. Projects
 
-### 5.1 Command Structure
+### 5.1 Project Definition
 
-**REQ-042**: The system shall provide commands: init, today, day, week, month, summarize.
+**REQ-071**: The system shall support project definitions in markdown format.
 
-**REQ-043**: The system shall support global options: --config (-c) and --journalPath (-j).
+**REQ-072**: When a project_file_pattern is specified in the configuration file for a client then the system
+shall recognize project definitions in files matching the pattern.
+
+**REQ-073**: The project_file_pattern configuration shall support the following placeholders:
+
+- `{id}`: the project identifier
+
+**REQ-074**: Project definition files shall support the following sections:
+
+- `## Admin`: defines project scheduling and resource information
+- `## Tasks`: defines the project work breakdown structure
+
+**REQ-075**: The project definition file 'Admin' section shall support an embedded TOML document with the
+following properties:
+
+- `start_date`: the project start date in YYYY-MM-DD format
+- `person`: a map of person identifiers to person properties, consisting of:
+  - `availability`: an array of availability periods in the format `YYYY-MM-DD to YYYY-MM-DD at # hours`
+    indicating the start and end dates of the person's availability for the project, and the number of hours
+    per day (decimal value) that the person is available for the project.
+
+**REQ-076**: The project definition file 'Tasks' section shall support an embedded TOML document with the
+following properties:
+
+- `<task id>`: a map describing a given task with the given identifier, consisting of the following properties:
+  - `summary`: the short description of the task
+  - `description`: the full task description
+  - `estimate_days`: a map describing the task estimate, comprising the following properties:
+    - `min`: the minimum number of days to complete the task
+    - `max`: the maximum number of days to complete the task
+    - `expected`: the expected number of days to complete the task
+  - `status`: the status of the task, one of: `not-started`, `in-progress`, `complete`
+  - `owners`: an array of person identifiers that are responsible for completing the task
+  - `dependencies`: an array of task identifiers that must be completed before the task can be started
+
+### 5.2 Project Summary Report
+
+**_REQ-077_**: When the system is invoked with the 'project-summary' command then the system shall generate
+a summary report for the specified project.
+
+**_REQ-078_**: The 'project-summary' command shall accept the following positional parameters:
+
+- the client identifier
+- the project identifier
+
+**_REQ-079_**: The 'project-summary' command shall report the following for the specified project:
+
+- The overall project status as:
+  - "Not started" if all of the tasks have the 'not-started' status
+  - "In progress" if any of the tasks have the 'in-progress' or 'complete' status
+  - "Complete" if all of the tasks have the 'complete' status
+- The total estimated days for the project, determined by the following rules:
+  - For any given task, the estimated days is calculated by the formula `(MIN + MAX + 4 * EXPECTED) / 6`
+    where `MIN` is the minimum estimate, `MAX` is the maximum estimate, and `EXPECTED` is the expected
+    estimate.
+  - The total project estimate is the sum of the estimates for all tasks that are in the critical path.
+  - The critical path is defined as the set of tasks that make up the longest path, by estimate, from the start task
+    to the end task.
+- The estimated project completion date, calculated by adding the total estimated days to the start date of the project,
+  and considering only business days. (as defined by the `work_days` configuration)
+- The project completion percentage, calculated by dividing the total estimated days by the number of days of completed
+  effort determined by summing the estimated days for all tasks that have status 'complete'
+
+## 6. Command Line Interface
+
+### 6.1 Command Structure
+
+**REQ-042**: The system shall provide commands: init, today, day, week, month, summarize, journal, note, project-summary.
+
+**REQ-043**: The system shall support global options: --config (-c).
 
 **REQ-044**: When the system is invoked with no specific command then the system shall execute
 the 'today' report.
 
-### 5.2 Input Validation
+### 6.2 Input Validation
 
 **REQ-045**: The system shall validate date parameters in YYYY-MM-DD format.
 
@@ -194,7 +263,7 @@ the 'today' report.
 
 **REQ-047**: The system shall provide error messages for invalid date formats.
 
-### 5.3 Output Formatting
+### 6.3 Output Formatting
 
 **REQ-048**: The system shall display timesheet reports with clear client/project/activity hierarchy.
 
@@ -204,23 +273,23 @@ the 'today' report.
 
 **REQ-051**: The system shall format time durations in hours and minutes.
 
-## 6. Data Security and Privacy
+## 7. Data Security and Privacy
 
-### 6.1 Secret Handling
+### 7.1 Secret Handling
 
 **REQ-052**: The system shall filter content within `<secret>...</secret>` tags from AI summarization input.
 
 **REQ-053**: The system shall not log or expose API keys in console output or error messages.
 
-### 6.2 File Access
+### 7.2 File Access
 
 **REQ-054**: The system shall handle file access errors gracefully by providing informative error messages.
 
 **REQ-055**: The system shall support optional file reading so that missing files do not cause system failure.
 
-## 7. Performance and Reliability
+## 8. Performance and Reliability
 
-### 7.1 Error Handling
+### 8.1 Error Handling
 
 **REQ-056**: The system shall provide meaningful error messages for configuration file parsing errors.
 
@@ -228,7 +297,7 @@ the 'today' report.
 
 **REQ-058**: The system shall validate AI service connectivity before processing summarization requests.
 
-### 7.2 Data Processing
+### 8.2 Data Processing
 
 **REQ-059**: The system shall process journal files incrementally to support large datasets.
 
