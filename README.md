@@ -7,6 +7,7 @@ help them optimize their time. This includes:
 
 - Tracking and reporting their time
 - Summarizing their notes with the use of a large language model (LLM)
+- Designing and managing projects
 
 This project is designed around a professional that potentially works for multiple
 clients on multiple projects per client. It might also be useful for anyone that
@@ -49,7 +50,7 @@ productivity-cli init
 The tool is built around a workflow of maintaining a journal file per day,
 where the professional records their time and any other general notes.
 Client-specific notes will be handled by separate files, allowing
-confidential client information to be compartemntalized to different
+confidential client information to be compartmentalized to different
 storage locations.
 
 Journal files are organized into a root directory, under which should be
@@ -114,11 +115,13 @@ Some description about the project
 ## Admin
 
 ```toml
-start_date: 2025-05-01
+start_date = 2025-05-01
 
 [person]
+
 [person.me]
 availability = [ "2025-05-01 to 2025-12-20 at 7 hours" ]
+
 [person.you]
 availability = [ "2025-07-01 to 2025-08-31 at 3.5 hours", "2025-09-01 to 2025-12-20 at 3.5 hours" ]
 ```
@@ -129,7 +132,7 @@ availability = [ "2025-07-01 to 2025-08-31 at 3.5 hours", "2025-09-01 to 2025-12
 [T001]
 summary = "Requirements"
 description = "Collect and analyze requirements"
-estimate_days = { min: 10, max: 40, expected: 15 }
+estimate_days = { min = 10, max = 40, expected = 15 }
 status = "complete"
 owners = ["me"]
 
@@ -137,7 +140,7 @@ owners = ["me"]
 summary = "UX"
 description = "User experience design"
 dependencies = ["T001"]
-estimate_days = { min: 5, max: 30, expected: 8 }
+estimate_days = { min = 5, max = 30, expected = 8 }
 owners = ["me", "you"]
 status = "in-progress"
 
@@ -145,7 +148,7 @@ status = "in-progress"
 summary = "Dev"
 description = "Development"
 dependencies = ["T001", "T003"]
-estimate_days = { min: 10, max: 40, expected: 15 }
+estimate_days = { min = 10, max = 40, expected = 15 }
 owners = ["you"]
 status = "not-started"
 ```
