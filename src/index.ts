@@ -171,6 +171,21 @@ import { printProjectSummary } from "./projects/printing";
       },
       async (args) => generateProjectVisualization(args),
     )
+    .command(
+      "project-init <client> <project>",
+      "Generate a sample project definition file for the specified client and project",
+      (yargs) => {
+        yargs.positional("client", {
+          description: "The client identifier",
+          type: "string",
+        });
+        yargs.positional("project", {
+          description: "The project identifier",
+          type: "string",
+        });
+      },
+      async (args) => initializeProject(args),
+    )
     .help()
     .parse(hideBin(process.argv));
 
@@ -221,6 +236,11 @@ interface ProjectVisualizationArguments extends Arguments {
   client: string;
   project: string;
   output: string;
+}
+
+interface ProjectInitArguments extends Arguments {
+  client: string;
+  project: string;
 }
 
 function init(args: Arguments) {
@@ -344,6 +364,21 @@ async function generateProjectVisualization(args: Arguments) {
 
   await projectService.generateProjectVisualization(client, project, output);
   console.log(`Project visualization generated: ${output}`);
+}
+
+async function initializeProject(args: Arguments) {
+  const { client, project } = args as ProjectInitArguments;
+  const config = await Config.load(args.config);
+
+  const projectService = new ProjectService({
+    workDayClassifier: getWorkDayClassifier(
+      config.workDayClassifierName ?? "general",
+    ),
+    clients: config.clients,
+  });
+
+  await projectService.initializeProject(client, project);
+  console.log(`Sample project definition file created: ${client} ${project}`);
 }
 
 function getToday() {
