@@ -218,15 +218,15 @@ following properties:
 
 ### 5.2 Project Summary Report
 
-**_REQ-077_**: When the system is invoked with the 'project-summary' command then the system shall generate
+**REQ-077**: When the system is invoked with the 'project-summary' command then the system shall generate
 a summary report for the specified project.
 
-**_REQ-078_**: The 'project-summary' command shall accept the following positional parameters:
+**REQ-078**: The 'project-summary' command shall accept the following positional parameters:
 
 - the client identifier
 - the project identifier
 
-**_REQ-079_**: The 'project-summary' command shall report the following for the specified project:
+**REQ-079**: The 'project-summary' command shall report the following for the specified project:
 
 - The overall project status as:
   - "Not started" if all of the tasks have the 'not-started' status
@@ -244,11 +244,36 @@ a summary report for the specified project.
 - The project completion percentage, calculated by dividing the total estimated days by the number of days of completed
   effort determined by summing the estimated days for all tasks that have status 'complete'
 
+### 5.3 Project Visualization
+
+**REQ-080**: When the system is invoked with the 'project-visualize' command then the system shall generate a
+graph (mermaidJS file) depicting the project work breakdown structure.
+
+**REQ-081**: The 'project-visualize' command shall accept the following positional parameters:
+
+- the client identifier
+- the project identifier
+
+**REQ-082**: The 'project-visualize' command shall accept an optional `--output` parameter to specify the output
+file name.
+
+**REQ-083**: When no `--output` parameter is specified and the `project-visualize` command is invoked, then the
+system shall generate an image file in the current working directory with the name `project.mmd`.
+
+**REQ-084**: The project visualization shall display a graph where edges represent tasks and vertices are used to
+group dependencies for the task, by having tasks which are dependencies point at a vertex while tasks which are
+dependents point away from the vertex.
+
+**REQ-085**: Each edge shall be labeled by the task summary.
+
+**REQ-086**: Each vertex shall be labelled by the estimated days to arrive at that vertex, determined by the
+critical path algorithm considering all tasks which point at the vertex.
+
 ## 6. Command Line Interface
 
 ### 6.1 Command Structure
 
-**REQ-042**: The system shall provide commands: init, today, day, week, month, summarize, journal, note, project-summary.
+**REQ-042**: The system shall provide commands: init, today, day, week, month, summarize, journal, note, project-summary, project-visualize.
 
 **REQ-043**: The system shall support global options: --config (-c).
 

@@ -151,6 +151,26 @@ import { printProjectSummary } from "./projects/printing";
       },
       async (args) => generateProjectSummary(args),
     )
+    .command(
+      "project-visualize <client> <project>",
+      "Generate a visualization of the project work breakdown structure",
+      (yargs) => {
+        yargs.positional("client", {
+          description: "The client identifier",
+          type: "string",
+        });
+        yargs.positional("project", {
+          description: "The project identifier",
+          type: "string",
+        });
+        yargs.option("output", {
+          description: "Output file name",
+          type: "string",
+          default: "project.mmd",
+        });
+      },
+      async (args) => generateProjectVisualization(args),
+    )
     .help()
     .parse(hideBin(process.argv));
 
@@ -195,6 +215,12 @@ interface NoteArguments extends Arguments {
 interface ProjectSummaryArguments extends Arguments {
   client: string;
   project: string;
+}
+
+interface ProjectVisualizationArguments extends Arguments {
+  client: string;
+  project: string;
+  output: string;
 }
 
 function init(args: Arguments) {
@@ -303,6 +329,21 @@ async function generateProjectSummary(args: Arguments) {
 
   const summary = await projectService.generateProjectSummary(client, project);
   printProjectSummary(summary, client, project);
+}
+
+async function generateProjectVisualization(args: Arguments) {
+  const { client, project, output } = args as ProjectVisualizationArguments;
+  const config = await Config.load(args.config);
+
+  const projectService = new ProjectService({
+    workDayClassifier: getWorkDayClassifier(
+      config.workDayClassifierName ?? "general",
+    ),
+    clients: config.clients,
+  });
+
+  await projectService.generateProjectVisualization(client, project, output);
+  console.log(`Project visualization generated: ${output}`);
 }
 
 function getToday() {
