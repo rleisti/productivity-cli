@@ -12,24 +12,7 @@ interface ProjectVisualizationServiceTestInterface {
 }
 
 describe("ProjectVisualizationService", () => {
-  let service: ProjectVisualizationService;
-
-  const mockCalculateTaskEstimate = (task: {
-    estimate_days: { min: number; max: number; expected: number };
-  }): number => {
-    return (
-      (task.estimate_days.min +
-        task.estimate_days.max +
-        4 * task.estimate_days.expected) /
-      6
-    );
-  };
-
-  beforeEach(() => {
-    service = new ProjectVisualizationService({
-      calculateTaskEstimate: mockCalculateTaskEstimate,
-    });
-  });
+  const service = new ProjectVisualizationService();
 
   describe("generateMermaidDiagram", () => {
     test("should generate diagram for empty project", () => {
@@ -116,7 +99,7 @@ describe("ProjectVisualizationService", () => {
       );
     });
 
-    test("should remove special characters in task summaries", () => {
+    test("should escape special characters in task summaries", () => {
       const project: ProjectDefinition = {
         admin: {
           start_date: { year: 2025, month: 1, day: 1 },

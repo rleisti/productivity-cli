@@ -24,17 +24,7 @@ export class ProjectService {
   constructor(config: ProjectServiceConfiguration) {
     this.config = config;
     this.analyzer = new ProjectAnalyzer(config.workDayClassifier);
-    this.visualizationService = new ProjectVisualizationService({
-      calculateTaskEstimate: (task) => {
-        // Use PERT formula: (min + max + 4 * expected) / 6
-        return (
-          (task.estimate_days.min +
-            task.estimate_days.max +
-            4 * task.estimate_days.expected) /
-          6
-        );
-      },
-    });
+    this.visualizationService = new ProjectVisualizationService();
   }
 
   /**

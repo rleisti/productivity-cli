@@ -1,4 +1,4 @@
-import { TasksSection } from "./ProjectDefinition";
+import { TaskEstimate, TasksSection } from "./ProjectDefinition";
 
 export function findCriticalPath(tasks: TasksSection): string[] {
   const taskIds = Object.keys(tasks);
@@ -72,6 +72,11 @@ function findDependents(taskId: string, tasks: TasksSection): string[] {
   );
 }
 
+/** Calculate an overall estimate using the PERT formula */
+export function calculateTaskEstimate(taskEstimate: TaskEstimate): number {
+  return (taskEstimate.min + taskEstimate.max + 4 * taskEstimate.expected) / 6;
+}
+
 export function calculateTotalEstimate(
   taskIds: string[],
   tasks: TasksSection,
@@ -79,14 +84,6 @@ export function calculateTotalEstimate(
   return taskIds.reduce((total, taskId) => {
     const task = tasks[taskId];
     if (!task) return total;
-
-    // Use PERT formula: (min + max + 4 * expected) / 6
-    const estimate =
-      (task.estimate_days.min +
-        task.estimate_days.max +
-        4 * task.estimate_days.expected) /
-      6;
-
-    return total + estimate;
+    return total + calculateTaskEstimate(task.estimate_days);
   }, 0);
 }

@@ -1,21 +1,8 @@
 import { promises as fs } from "fs";
 import { ProjectDefinition, TasksSection } from "./ProjectDefinition";
-import { findCriticalPath } from "./util";
-
-export interface ProjectVisualizationServiceConfiguration {
-  /** Function to calculate task estimates using PERT formula */
-  calculateTaskEstimate: (task: {
-    estimate_days: { min: number; max: number; expected: number };
-  }) => number;
-}
+import { calculateTaskEstimate, findCriticalPath } from "./util";
 
 export class ProjectVisualizationService {
-  private config: ProjectVisualizationServiceConfiguration;
-
-  constructor(config: ProjectVisualizationServiceConfiguration) {
-    this.config = config;
-  }
-
   /**
    * Generate a project visualization and save it to a file
    */
@@ -172,8 +159,8 @@ export class ProjectVisualizationService {
         // Sum estimates of all tasks up to and including this task in critical path
         let pathEstimate = 0;
         for (let i = 0; i <= taskIndex; i++) {
-          pathEstimate += this.config.calculateTaskEstimate(
-            tasks[criticalPath[i]],
+          pathEstimate += calculateTaskEstimate(
+            tasks[criticalPath[i]].estimate_days,
           );
         }
 
