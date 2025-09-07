@@ -16,10 +16,6 @@ import { NodeProcessSpawner } from "./editor/NodeProcessSpawner";
 import { ClientNotesService } from "./notes/ClientNotesService";
 import { ProjectService } from "./projects/ProjectService";
 import { printProjectSummary } from "./projects/printing";
-import { ProjectFileReader } from "./projects/ProjectFileReader";
-import * as fs from "node:fs";
-import * as path from "node:path";
-import { expandTildePath } from "./util";
 
 (async () => {
   await yargs()
@@ -374,111 +370,15 @@ async function initializeProject(args: Arguments) {
   const { client, project } = args as ProjectInitArguments;
   const config = await Config.load(args.config);
 
-  const clientConfig = config.clients.find((c) => c.client === client);
-  if (!clientConfig) {
-    throw new Error(`Client '${client}' not found in configuration`);
-  }
+  const projectService = new ProjectService({
+    workDayClassifier: getWorkDayClassifier(
+      config.workDayClassifierName ?? "general",
+    ),
+    clients: config.clients,
+  });
 
-  if (!clientConfig.projectFilePattern) {
-    throw new Error(
-      `Client '${client}' does not have a project_file_pattern configured`,
-    );
-  }
-
-  const projectFileReader = new ProjectFileReader(clientConfig);
-  const filePath = projectFileReader.getProjectFilePath(project);
-  const expandedFilePath = expandTildePath(filePath);
-
-  if (fs.existsSync(expandedFilePath)) {
-    throw new Error(`Project file already exists: ${expandedFilePath}`);
-  }
-
-  const parentDir = path.dirname(expandedFilePath);
-  if (!fs.existsSync(parentDir)) {
-    fs.mkdirSync(parentDir, { recursive: true });
-  }
-
-  const sampleContent = generateSampleProjectContent(project);
-  fs.writeFileSync(expandedFilePath, sampleContent);
-
-  console.log(`Sample project definition file created: ${expandedFilePath}`);
-}
-
-function generateSampleProjectContent(projectId: string): string {
-  const today = new Date();
-  const startDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
-
-  const endDate1 = new Date(today);
-  endDate1.setMonth(endDate1.getMonth() + 2);
-  const endDateString1 = `${endDate1.getFullYear()}-${String(endDate1.getMonth() + 1).padStart(2, "0")}-${String(endDate1.getDate()).padStart(2, "0")}`;
-
-  const endDate2 = new Date(today);
-  endDate2.setMonth(endDate2.getMonth() + 3);
-  const endDateString2 = `${endDate2.getFullYear()}-${String(endDate2.getMonth() + 1).padStart(2, "0")}-${String(endDate2.getDate()).padStart(2, "0")}`;
-
-  return `# ${projectId.charAt(0).toUpperCase() + projectId.slice(1)} Project
-
-This project involves implementing the ${projectId} feature with comprehensive planning and execution.
-
-## Admin
-
-\`\`\`toml
-start_date = "${startDate}"
-
-[person.alice]
-availability = [
-    "${startDate} to ${endDateString1} at 8 hours",
-    "${endDateString1} to ${endDateString2} at 6 hours"
-]
-
-[person.bob]
-availability = ["${startDate} to ${endDateString2} at 7 hours"]
-\`\`\`
-
-## Tasks
-
-\`\`\`toml
-[planning]
-summary = "Project planning and requirements analysis"
-description = "Define project scope, gather requirements, and create detailed project plan"
-status = "not-started"
-owners = ["alice"]
-dependencies = []
-estimate_days = { min = 2, max = 4, expected = 3 }
-
-[design]
-summary = "System design and architecture"
-description = "Create system architecture, design interfaces, and establish technical specifications"
-status = "not-started"
-owners = ["alice"]
-dependencies = ["planning"]
-estimate_days = { min = 3, max = 6, expected = 4 }
-
-[implementation]
-summary = "Core implementation"
-description = "Implement the main functionality according to the design specifications"
-status = "not-started"
-owners = ["bob"]
-dependencies = ["design"]
-estimate_days = { min = 8, max = 15, expected = 10 }
-
-[testing]
-summary = "Testing and quality assurance"
-description = "Comprehensive testing including unit tests, integration tests, and user acceptance testing"
-status = "not-started"
-owners = ["alice", "bob"]
-dependencies = ["implementation"]
-estimate_days = { min = 3, max = 6, expected = 4 }
-
-[deployment]
-summary = "Deployment and launch"
-description = "Deploy to production environment and monitor initial launch"
-status = "not-started"
-owners = ["bob"]
-dependencies = ["testing"]
-estimate_days = { min = 1, max = 3, expected = 2 }
-\`\`\`
-`;
+  await projectService.initializeProject(client, project);
+  console.log(`Sample project definition file created: ${client} ${project}`);
 }
 
 function getToday() {
