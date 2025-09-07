@@ -9,6 +9,7 @@ import {
   PersonAvailability,
 } from "./ProjectDefinition";
 import { Day } from "../journal/types";
+import { expandTildePath } from "../util";
 
 export interface ProjectClientConfiguration {
   /** The client identifier */
@@ -28,7 +29,9 @@ export class ProjectFileReader {
    * Get the file path for a project definition file
    */
   public getProjectFilePath(projectId: string): string {
-    return this.config.projectFilePattern.replace(/\{id}/g, projectId);
+    return expandTildePath(
+      this.config.projectFilePattern.replace(/\{id}/g, projectId),
+    );
   }
 
   /**
