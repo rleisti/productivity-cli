@@ -216,6 +216,14 @@ following properties:
   - `owners`: an array of person identifiers that are responsible for completing the task
   - `dependencies`: an array of task identifiers that must be completed before the task can be started
 
+**REQ-088**: When the system is invoked with the 'project-init' command, then the system shall generate a sample
+project definition file for a given client and project identifier.
+
+**REQ-089**: The 'project-init' command shall accept the following positional parameters:
+
+- the client identifier
+- the project identifier
+
 ### 5.2 Project Summary Report
 
 **REQ-077**: When the system is invoked with the 'project-summary' command then the system shall generate
