@@ -25,20 +25,9 @@ describe("ProjectVisualizationService", () => {
     );
   };
 
-  const mockFindCriticalPath = (tasks: TasksSection): string[] => {
-    // Simple mock that returns tasks in dependency order
-    const taskIds = Object.keys(tasks);
-    return taskIds.sort((a, b) => {
-      if (tasks[b].dependencies.includes(a)) return -1;
-      if (tasks[a].dependencies.includes(b)) return 1;
-      return 0;
-    });
-  };
-
   beforeEach(() => {
     service = new ProjectVisualizationService({
       calculateTaskEstimate: mockCalculateTaskEstimate,
-      findCriticalPath: mockFindCriticalPath,
     });
   });
 

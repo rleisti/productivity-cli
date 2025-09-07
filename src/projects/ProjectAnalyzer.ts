@@ -5,9 +5,10 @@ import {
   TasksSection,
 } from "./ProjectDefinition";
 import { Day } from "../journal/types";
+import { calculateTotalEstimate, findCriticalPath } from "./util";
 
 export class ProjectAnalyzer {
-  private workDayClassifier: (day: Day) => boolean;
+  private readonly workDayClassifier: (day: Day) => boolean;
 
   constructor(workDayClassifier: (day: Day) => boolean) {
     this.workDayClassifier = workDayClassifier;
@@ -18,8 +19,8 @@ export class ProjectAnalyzer {
    */
   public analyzeProject(project: ProjectDefinition): ProjectSummary {
     const status = this.calculateProjectStatus(project.tasks);
-    const criticalPath = this.findCriticalPath(project.tasks);
-    const totalEstimatedDays = this.calculateTotalEstimate(
+    const criticalPath = findCriticalPath(project.tasks);
+    const totalEstimatedDays = calculateTotalEstimate(
       criticalPath,
       project.tasks,
     );
@@ -61,97 +62,6 @@ export class ProjectAnalyzer {
     return "in-progress";
   }
 
-  public findCriticalPath(tasks: TasksSection): string[] {
-    const taskIds = Object.keys(tasks);
-    const visited = new Set<string>();
-    const paths: string[][] = [];
-
-    // Find all possible paths from start to end
-    for (const taskId of taskIds) {
-      if (this.isStartTask(taskId, tasks)) {
-        const path: string[] = [];
-        this.findAllPaths(taskId, tasks, visited, path, paths);
-      }
-    }
-
-    // Find the path with the longest total estimate
-    let criticalPath: string[] = [];
-    let maxEstimate = 0;
-
-    for (const path of paths) {
-      const pathEstimate = this.calculateTotalEstimate(path, tasks);
-      if (pathEstimate > maxEstimate) {
-        maxEstimate = pathEstimate;
-        criticalPath = path;
-      }
-    }
-
-    return criticalPath;
-  }
-
-  private isStartTask(taskId: string, tasks: TasksSection): boolean {
-    return tasks[taskId].dependencies.length === 0;
-  }
-
-  private findAllPaths(
-    currentTask: string,
-    tasks: TasksSection,
-    visited: Set<string>,
-    currentPath: string[],
-    allPaths: string[][],
-  ): void {
-    if (visited.has(currentTask)) {
-      return; // Avoid cycles
-    }
-
-    visited.add(currentTask);
-    currentPath.push(currentTask);
-
-    const dependents = this.findDependents(currentTask, tasks);
-    if (dependents.length === 0) {
-      // This is an end task, save the path
-      allPaths.push([...currentPath]);
-    } else {
-      for (const dependent of dependents) {
-        this.findAllPaths(
-          dependent,
-          tasks,
-          new Set(visited),
-          [...currentPath],
-          allPaths,
-        );
-      }
-    }
-
-    visited.delete(currentTask);
-    currentPath.pop();
-  }
-
-  private findDependents(taskId: string, tasks: TasksSection): string[] {
-    return Object.keys(tasks).filter((id) =>
-      tasks[id].dependencies.includes(taskId),
-    );
-  }
-
-  private calculateTotalEstimate(
-    taskIds: string[],
-    tasks: TasksSection,
-  ): number {
-    return taskIds.reduce((total, taskId) => {
-      const task = tasks[taskId];
-      if (!task) return total;
-
-      // Use PERT formula: (min + max + 4 * expected) / 6
-      const estimate =
-        (task.estimate_days.min +
-          task.estimate_days.max +
-          4 * task.estimate_days.expected) /
-        6;
-
-      return total + estimate;
-    }, 0);
-  }
-
   private calculateCompletionDate(startDate: Day, estimatedDays: number): Day {
     const currentDate = new Date(
       startDate.year,
@@ -189,11 +99,8 @@ export class ProjectAnalyzer {
     }
 
     // Calculate based on task estimates, not count
-    const totalEstimate = this.calculateTotalEstimate(
-      Object.keys(tasks),
-      tasks,
-    );
-    const completedEstimate = this.calculateTotalEstimate(
+    const totalEstimate = calculateTotalEstimate(Object.keys(tasks), tasks);
+    const completedEstimate = calculateTotalEstimate(
       Object.keys(tasks).filter((id) => tasks[id].status === "complete"),
       tasks,
     );

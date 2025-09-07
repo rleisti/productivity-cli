@@ -1,13 +1,12 @@
 import { promises as fs } from "fs";
 import { ProjectDefinition, TasksSection } from "./ProjectDefinition";
+import { findCriticalPath } from "./util";
 
 export interface ProjectVisualizationServiceConfiguration {
   /** Function to calculate task estimates using PERT formula */
   calculateTaskEstimate: (task: {
     estimate_days: { min: number; max: number; expected: number };
   }) => number;
-  /** Function to find critical path through tasks */
-  findCriticalPath: (tasks: TasksSection) => string[];
 }
 
 export class ProjectVisualizationService {
@@ -57,7 +56,7 @@ export class ProjectVisualizationService {
 
     // Build the graph structure
     const vertices = this.buildVertexGraph(tasks);
-    const criticalPath = this.config.findCriticalPath(tasks);
+    const criticalPath = findCriticalPath(tasks);
 
     let diagram = "flowchart TD\n";
 

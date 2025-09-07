@@ -34,9 +34,6 @@ export class ProjectService {
           6
         );
       },
-      findCriticalPath: (tasks) => {
-        return this.analyzer.findCriticalPath(tasks);
-      },
     });
   }
 
