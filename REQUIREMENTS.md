@@ -237,9 +237,9 @@ a summary report for the specified project.
 **REQ-079**: The 'project-summary' command shall report the following for the specified project:
 
 - The overall project status as:
-  - "Not started" if all of the tasks have the 'not-started' status
+  - "Not started" if all the tasks have the 'not-started' status
   - "In progress" if any of the tasks have the 'in-progress' or 'complete' status
-  - "Complete" if all of the tasks have the 'complete' status
+  - "Complete" if all the tasks have the 'complete' status
 - The total estimated days for the project, determined by the following rules:
   - For any given task, the estimated days is calculated by the formula `(MIN + MAX + 4 * EXPECTED) / 6`
     where `MIN` is the minimum estimate, `MAX` is the maximum estimate, and `EXPECTED` is the expected
@@ -281,8 +281,6 @@ critical path algorithm considering all tasks which point at the vertex.
 
 ### 6.1 Command Structure
 
-**REQ-042**: The system shall provide commands: init, today, day, week, month, summarize, journal, note, project-summary, project-visualize.
-
 **REQ-043**: The system shall support global options: --config (-c).
 
 **REQ-044**: When the system is invoked with no specific command then the system shall execute
@@ -313,27 +311,3 @@ the 'today' report.
 **REQ-052**: The system shall filter content within `<secret>...</secret>` tags from AI summarization input.
 
 **REQ-053**: The system shall not log or expose API keys in console output or error messages.
-
-### 7.2 File Access
-
-**REQ-054**: The system shall handle file access errors gracefully by providing informative error messages.
-
-**REQ-055**: The system shall support optional file reading so that missing files do not cause system failure.
-
-## 8. Performance and Reliability
-
-### 8.1 Error Handling
-
-**REQ-056**: The system shall provide meaningful error messages for configuration file parsing errors.
-
-**REQ-057**: The system shall handle missing journal files without crashing.
-
-**REQ-058**: The system shall validate AI service connectivity before processing summarization requests.
-
-### 8.2 Data Processing
-
-**REQ-059**: The system shall process journal files incrementally to support large datasets.
-
-**REQ-060**: The system shall maintain data consistency during time aggregation calculations.
-
-**REQ-061**: The system shall handle timezone considerations for daily boundary calculations.
