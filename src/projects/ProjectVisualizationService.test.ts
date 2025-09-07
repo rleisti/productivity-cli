@@ -51,15 +51,14 @@ describe("ProjectVisualizationService", () => {
         },
         tasks: {},
       };
-
-      // Access private method for testing
-      const testService =
-        service as unknown as ProjectVisualizationServiceTestInterface;
-      const diagram = testService.generateMermaidDiagram(project);
-
-      expect(diagram).toContain("flowchart TD");
-      expect(diagram).toContain("Start[Project Start]");
-      expect(diagram).toContain("End[Project End]");
+      verifyDiagram(
+        project,
+        `
+        flowchart TD
+            Start[Project Start]
+            End[Project End]
+            Start --> End`,
+      );
     });
 
     test("should generate diagram for project with single task", () => {
@@ -80,12 +79,14 @@ describe("ProjectVisualizationService", () => {
         },
       };
 
-      const testService =
-        service as unknown as ProjectVisualizationServiceTestInterface;
-      const diagram = testService.generateMermaidDiagram(project);
-
-      expect(diagram).toContain("flowchart TD");
-      expect(diagram).toContain("Task 1");
+      verifyDiagram(
+        project,
+        `
+        flowchart TD
+            V0[0.0 days]
+            V1[2.0 days]
+            V0 ===>|Task 1| V1`,
+      );
     });
 
     test("should generate diagram for project with dependencies", () => {
@@ -114,16 +115,19 @@ describe("ProjectVisualizationService", () => {
         },
       };
 
-      const testService =
-        service as unknown as ProjectVisualizationServiceTestInterface;
-      const diagram = testService.generateMermaidDiagram(project);
-
-      expect(diagram).toContain("flowchart TD");
-      expect(diagram).toContain("Task 1");
-      expect(diagram).toContain("Task 2");
+      verifyDiagram(
+        project,
+        `
+        flowchart TD
+            V0[0.0 days]
+            V1[2.0 days]
+            V2[5.0 days]
+            V0 ===>|Task 1| V1
+            V1 ===>|Task 2| V2`,
+      );
     });
 
-    test("should escape special characters in task summaries", () => {
+    test("should remove special characters in task summaries", () => {
       const project: ProjectDefinition = {
         admin: {
           start_date: { year: 2025, month: 1, day: 1 },
@@ -141,14 +145,14 @@ describe("ProjectVisualizationService", () => {
         },
       };
 
-      const testService =
-        service as unknown as ProjectVisualizationServiceTestInterface;
-      const diagram = testService.generateMermaidDiagram(project);
-
-      // Should not contain the problematic characters
-      expect(diagram).not.toContain('"');
-      expect(diagram).not.toContain("{");
-      expect(diagram).not.toContain("}");
+      verifyDiagram(
+        project,
+        `
+        flowchart TD
+            V0[0.0 days]
+            V1[2.0 days]
+            V0 ===>|Task with quotes and braces| V1`,
+      );
     });
   });
 
@@ -201,4 +205,20 @@ describe("ProjectVisualizationService", () => {
       expect(result).toBe(5);
     });
   });
+
+  function verifyDiagram(project: ProjectDefinition, expectedDiagram: string) {
+    const lines = expectedDiagram
+      .split("\n")
+      .filter((line) => line.trim().length > 0);
+    const indentation = lines[0]?.match(/^\s*/)?.[0].length ?? 0;
+    const trimmedDiagram = lines
+      .map((line) => line.slice(indentation))
+      .join("\n");
+
+    const testService =
+      service as unknown as ProjectVisualizationServiceTestInterface;
+    expect(testService.generateMermaidDiagram(project).trim()).toStrictEqual(
+      trimmedDiagram,
+    );
+  }
 });
