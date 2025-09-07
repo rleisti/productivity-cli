@@ -27,15 +27,13 @@ export class ProjectVisualizationService {
     const mermaidDiagram = this.generateMermaidDiagram(project);
 
     try {
-      // For now, save the Mermaid diagram source as a .mmd file
-      // This can be used with Mermaid CLI or online tools to generate images
-      const mermaidFilePath = outputPath.replace(/\.(png|svg)$/, ".mmd");
-      await fs.writeFile(mermaidFilePath, mermaidDiagram);
+      await fs.writeFile(outputPath, mermaidDiagram);
 
-      console.log(`Mermaid diagram saved to: ${mermaidFilePath}`);
+      const imagePath = outputPath.replace(/\.mmd$/, ".png");
+      console.log(`Mermaid diagram saved to: ${outputPath}`);
       console.log("To generate PNG/SVG, you can:");
       console.log(
-        `1. Use Mermaid CLI: npx @mermaid-js/mermaid-cli -i ${mermaidFilePath} -o ${outputPath}`,
+        `1. Use Mermaid CLI: npx @mermaid-js/mermaid-cli -i ${outputPath} -o ${imagePath}`,
       );
       console.log(
         "2. Visit https://mermaid.live/ and paste the diagram content",

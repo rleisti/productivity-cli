@@ -166,7 +166,7 @@ import { printProjectSummary } from "./projects/printing";
         yargs.option("output", {
           description: "Output file name",
           type: "string",
-          default: "project.png",
+          default: "project.mmd",
         });
       },
       async (args) => generateProjectVisualization(args),

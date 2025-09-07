@@ -60,7 +60,7 @@ export class ProjectService {
   public async generateProjectVisualization(
     clientId: string,
     projectId: string,
-    outputPath: string = "project.png",
+    outputPath: string,
   ): Promise<void> {
     const clientConfig = this.findClientConfig(clientId);
     const fileReader = new ProjectFileReader(clientConfig);
