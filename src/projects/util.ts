@@ -1,15 +1,21 @@
 import { TaskEstimate, TasksSection } from "./ProjectDefinition";
 
-export function findCriticalPath(tasks: TasksSection): string[] {
+export function findCriticalPath(
+  tasks: TasksSection,
+  startTask?: string,
+): string[] {
   const taskIds = Object.keys(tasks);
   const visited = new Set<string>();
   const paths: string[][] = [];
 
   // Find all possible paths from start to end
-  for (const taskId of taskIds) {
-    if (isStartTask(taskId, tasks)) {
-      const path: string[] = [];
-      findAllPaths(taskId, tasks, visited, path, paths);
+  if (startTask) {
+    findAllPaths(startTask, tasks, visited, [], paths);
+  } else {
+    for (const taskId of taskIds) {
+      if (isStartTask(taskId, tasks)) {
+        findAllPaths(taskId, tasks, visited, [], paths);
+      }
     }
   }
 

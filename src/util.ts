@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
+import { Day } from "./journal/types";
 
 /**
  * Expand tilde (~) in file paths to the user's home directory.
@@ -39,4 +40,19 @@ export function zeroPad(value: number, length: number) {
 
 export function formatDate(value: Date): string {
   return `${value.getFullYear()}-${String(value.getMonth() + 1).padStart(2, "0")}-${String(value.getDate()).padStart(2, "0")}`;
+}
+
+export function compareDays(x: Day, y: Day): number {
+  if (x.year < y.year) {
+    return -1;
+  } else if (x.year > y.year) {
+    return 1;
+  } else if (x.month < y.month) {
+    return -1;
+  } else if (x.month > y.month) {
+    return 1;
+  } else if (x.day < y.day) {
+    return -1;
+  }
+  return 0;
 }

@@ -1,5 +1,6 @@
 import { ProjectVisualizationService } from "./ProjectVisualizationService";
 import { ProjectDefinition, TasksSection } from "./ProjectDefinition";
+import { getWorkDayClassifier } from "../journal/workDay";
 
 // Test interface to access private methods
 interface ProjectVisualizationServiceTestInterface {
@@ -12,7 +13,9 @@ interface ProjectVisualizationServiceTestInterface {
 }
 
 describe("ProjectVisualizationService", () => {
-  const service = new ProjectVisualizationService();
+  const service = new ProjectVisualizationService(
+    getWorkDayClassifier("general"),
+  );
 
   describe("generateMermaidDiagram", () => {
     test("should generate diagram for empty project", () => {
@@ -37,7 +40,17 @@ describe("ProjectVisualizationService", () => {
       const project: ProjectDefinition = {
         admin: {
           start_date: { year: 2025, month: 1, day: 1 },
-          person: {},
+          person: {
+            alice: {
+              availability: [
+                {
+                  startDate: { year: 2025, month: 1, day: 1 },
+                  endDate: { year: 2025, month: 12, day: 31 },
+                  hoursPerDay: 8,
+                },
+              ],
+            },
+          },
         },
         tasks: {
           task1: {
@@ -55,9 +68,9 @@ describe("ProjectVisualizationService", () => {
         project,
         `
         flowchart TD
-            V0[0.0 days]
-            V1[2.0 days]
-            V0 ===>|Task 1| V1`,
+            C0[2025-01-01]
+            C1[2025-01-02]
+            C0== task1 alice E:2 ==>C1`,
       );
     });
 
@@ -65,7 +78,26 @@ describe("ProjectVisualizationService", () => {
       const project: ProjectDefinition = {
         admin: {
           start_date: { year: 2025, month: 1, day: 1 },
-          person: {},
+          person: {
+            alice: {
+              availability: [
+                {
+                  startDate: { year: 2025, month: 1, day: 1 },
+                  endDate: { year: 2025, month: 12, day: 31 },
+                  hoursPerDay: 8,
+                },
+              ],
+            },
+            bob: {
+              availability: [
+                {
+                  startDate: { year: 2025, month: 1, day: 1 },
+                  endDate: { year: 2025, month: 12, day: 31 },
+                  hoursPerDay: 8,
+                },
+              ],
+            },
+          },
         },
         tasks: {
           task1: {
@@ -91,11 +123,14 @@ describe("ProjectVisualizationService", () => {
         project,
         `
         flowchart TD
-            V0[0.0 days]
-            V1[2.0 days]
-            V2[5.0 days]
-            V0 ===>|Task 1| V1
-            V1 ===>|Task 2| V2`,
+            C0[2025-01-01]
+            C1[2025-01-02]
+            C2[2025-01-02]
+            C3[2025-01-03]
+            C0== task1 alice E:2 ==>C1
+            C0-. bob .->C2
+            C1-.->C2
+            C2== task2 bob E:3 ==>C3`,
       );
     });
 
@@ -103,7 +138,17 @@ describe("ProjectVisualizationService", () => {
       const project: ProjectDefinition = {
         admin: {
           start_date: { year: 2025, month: 1, day: 1 },
-          person: {},
+          person: {
+            alice: {
+              availability: [
+                {
+                  startDate: { year: 2025, month: 1, day: 1 },
+                  endDate: { year: 2025, month: 12, day: 31 },
+                  hoursPerDay: 8,
+                },
+              ],
+            },
+          },
         },
         tasks: {
           task1: {
@@ -121,60 +166,10 @@ describe("ProjectVisualizationService", () => {
         project,
         `
         flowchart TD
-            V0[0.0 days]
-            V1[2.0 days]
-            V0 ===>|Task with quotes and braces| V1`,
+            C0[2025-01-01]
+            C1[2025-01-02]
+            C0== task1 alice E:2 ==>C1`,
       );
-    });
-  });
-
-  describe("calculateCumulativeEstimate", () => {
-    test("should return 0 for no incoming tasks", () => {
-      const tasks: TasksSection = {};
-      const criticalPath: string[] = [];
-
-      const testService =
-        service as unknown as ProjectVisualizationServiceTestInterface;
-      const result = testService.calculateCumulativeEstimate(
-        [],
-        tasks,
-        criticalPath,
-      );
-
-      expect(result).toBe(0);
-    });
-
-    test("should calculate cumulative estimate correctly", () => {
-      const tasks: TasksSection = {
-        task1: {
-          summary: "Task 1",
-          description: "First task",
-          estimate_days: { min: 1, max: 3, expected: 2 },
-          status: "not-started",
-          owners: ["alice"],
-          dependencies: [],
-        },
-        task2: {
-          summary: "Task 2",
-          description: "Second task",
-          estimate_days: { min: 2, max: 4, expected: 3 },
-          status: "not-started",
-          owners: ["bob"],
-          dependencies: ["task1"],
-        },
-      };
-      const criticalPath = ["task1", "task2"];
-
-      const testService =
-        service as unknown as ProjectVisualizationServiceTestInterface;
-      const result = testService.calculateCumulativeEstimate(
-        ["task2"],
-        tasks,
-        criticalPath,
-      );
-
-      // Should sum task1 (2 days) + task2 (3 days) = 5 days
-      expect(result).toBe(5);
     });
   });
 
