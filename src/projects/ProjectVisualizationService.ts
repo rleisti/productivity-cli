@@ -1,6 +1,5 @@
 import { promises as fs } from "fs";
-import { ProjectDefinition } from "./ProjectDefinition";
-import { ProjectSimulation } from "./ProjectSimulation";
+import { SimulatedProject } from "./ProjectSimulation";
 import { Day } from "../journal/types";
 import { formatDay } from "../journal/util";
 
@@ -15,7 +14,7 @@ export class ProjectVisualizationService {
    * Generate a project visualization and save it to a file
    */
   public async generateVisualization(
-    project: ProjectDefinition,
+    project: SimulatedProject,
     outputPath: string,
   ): Promise<void> {
     const mermaidDiagram = this.generateMermaidDiagram(project);
@@ -41,18 +40,10 @@ export class ProjectVisualizationService {
   /**
    * Generate Mermaid flowchart syntax for the project
    */
-  private generateMermaidDiagram(project: ProjectDefinition): string {
-    const tasks = project.tasks;
-    const taskIds = Object.keys(tasks);
-
-    if (taskIds.length === 0) {
+  private generateMermaidDiagram(simulation: SimulatedProject): string {
+    if (simulation.checkpoints.length === 0) {
       return "flowchart TD\n    Start[Project Start]\n    End[Project End]\n    Start --> End";
     }
-
-    const simulation = new ProjectSimulation(
-      project,
-      this.workDayClassifier,
-    ).run();
 
     let diagram = "flowchart TD\n";
     for (const checkpoint of simulation.checkpoints) {

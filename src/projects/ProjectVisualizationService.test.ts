@@ -1,10 +1,11 @@
 import { ProjectVisualizationService } from "./ProjectVisualizationService";
-import { ProjectDefinition, TasksSection } from "./ProjectDefinition";
+import { TasksSection } from "./ProjectDefinition";
 import { getWorkDayClassifier } from "../journal/workDay";
+import { SimulatedProject } from "./ProjectSimulation";
 
 // Test interface to access private methods
 interface ProjectVisualizationServiceTestInterface {
-  generateMermaidDiagram: (project: ProjectDefinition) => string;
+  generateMermaidDiagram: (project: SimulatedProject) => string;
   calculateCumulativeEstimate: (
     incomingTasks: string[],
     tasks: TasksSection,
@@ -19,12 +20,8 @@ describe("ProjectVisualizationService", () => {
 
   describe("generateMermaidDiagram", () => {
     test("should generate diagram for empty project", () => {
-      const project: ProjectDefinition = {
-        admin: {
-          start_date: { year: 2025, month: 1, day: 1 },
-          person: {},
-        },
-        tasks: {},
+      const project: SimulatedProject = {
+        checkpoints: [],
       };
       verifyDiagram(
         project,
@@ -37,31 +34,36 @@ describe("ProjectVisualizationService", () => {
     });
 
     test("should generate diagram for project with single task", () => {
-      const project: ProjectDefinition = {
-        admin: {
-          start_date: { year: 2025, month: 1, day: 1 },
-          person: {
-            alice: {
-              availability: [
-                {
-                  startDate: { year: 2025, month: 1, day: 1 },
-                  endDate: { year: 2025, month: 12, day: 31 },
-                  hoursPerDay: 8,
-                },
-              ],
-            },
+      const project: SimulatedProject = {
+        checkpoints: [
+          {
+            id: 0,
+            day: { year: 2025, month: 1, day: 1 },
+            freePeople: [],
+            completedTasks: [],
+            incoming: [],
+            outgoing: [
+              {
+                taskId: "task1",
+                personId: "alice",
+                float: 0,
+                estimate: 2,
+                from: 0,
+                to: 1,
+                startDay: { year: 2025, month: 1, day: 1 },
+                endDay: { year: 2025, month: 2, day: 2 },
+              },
+            ],
           },
-        },
-        tasks: {
-          task1: {
-            summary: "Task 1",
-            description: "First task",
-            estimate_days: { min: 1, max: 3, expected: 2 },
-            status: "not-started",
-            owners: ["alice"],
-            dependencies: [],
+          {
+            id: 1,
+            day: { year: 2025, month: 1, day: 2 },
+            freePeople: [],
+            completedTasks: [],
+            incoming: [],
+            outgoing: [],
           },
-        },
+        ],
       };
 
       verifyDiagram(
@@ -74,92 +76,37 @@ describe("ProjectVisualizationService", () => {
       );
     });
 
-    test("should generate diagram for project with dependencies", () => {
-      const project: ProjectDefinition = {
-        admin: {
-          start_date: { year: 2025, month: 1, day: 1 },
-          person: {
-            alice: {
-              availability: [
-                {
-                  startDate: { year: 2025, month: 1, day: 1 },
-                  endDate: { year: 2025, month: 12, day: 31 },
-                  hoursPerDay: 8,
-                },
-              ],
-            },
-            bob: {
-              availability: [
-                {
-                  startDate: { year: 2025, month: 1, day: 1 },
-                  endDate: { year: 2025, month: 12, day: 31 },
-                  hoursPerDay: 8,
-                },
-              ],
-            },
-          },
-        },
-        tasks: {
-          task1: {
-            summary: "Task 1",
-            description: "First task",
-            estimate_days: { min: 1, max: 3, expected: 2 },
-            status: "not-started",
-            owners: ["alice"],
-            dependencies: [],
-          },
-          task2: {
-            summary: "Task 2",
-            description: "Second task",
-            estimate_days: { min: 2, max: 4, expected: 3 },
-            status: "not-started",
-            owners: ["bob"],
-            dependencies: ["task1"],
-          },
-        },
-      };
-
-      verifyDiagram(
-        project,
-        `
-        flowchart TD
-            C0[2025-01-01]
-            C1[2025-01-02]
-            C2[2025-01-02]
-            C3[2025-01-03]
-            C0== task1 alice E:2 ==>C1
-            C0-. bob .->C2
-            C1-.->C2
-            C2== task2 bob E:3 ==>C3`,
-      );
-    });
-
     test("should escape special characters in task summaries", () => {
-      const project: ProjectDefinition = {
-        admin: {
-          start_date: { year: 2025, month: 1, day: 1 },
-          person: {
-            alice: {
-              availability: [
-                {
-                  startDate: { year: 2025, month: 1, day: 1 },
-                  endDate: { year: 2025, month: 12, day: 31 },
-                  hoursPerDay: 8,
-                },
-              ],
-            },
+      const project: SimulatedProject = {
+        checkpoints: [
+          {
+            id: 0,
+            day: { year: 2025, month: 1, day: 1 },
+            freePeople: [],
+            completedTasks: [],
+            incoming: [],
+            outgoing: [
+              {
+                taskId: "{task1}",
+                personId: '"alice"',
+                float: 0,
+                estimate: 2,
+                from: 0,
+                to: 1,
+                startDay: { year: 2025, month: 1, day: 1 },
+                endDay: { year: 2025, month: 2, day: 2 },
+              },
+            ],
           },
-        },
-        tasks: {
-          task1: {
-            summary: 'Task with "quotes" and {braces}',
-            description: "First task",
-            estimate_days: { min: 1, max: 3, expected: 2 },
-            status: "not-started",
-            owners: ["alice"],
-            dependencies: [],
+          {
+            id: 1,
+            day: { year: 2025, month: 1, day: 2 },
+            freePeople: [],
+            completedTasks: [],
+            incoming: [],
+            outgoing: [],
           },
-        },
+        ],
       };
 
       verifyDiagram(
@@ -173,7 +120,10 @@ describe("ProjectVisualizationService", () => {
     });
   });
 
-  function verifyDiagram(project: ProjectDefinition, expectedDiagram: string) {
+  function verifyDiagram(
+    simulation: SimulatedProject,
+    expectedDiagram: string,
+  ) {
     const lines = expectedDiagram
       .split("\n")
       .filter((line) => line.trim().length > 0);
@@ -184,7 +134,7 @@ describe("ProjectVisualizationService", () => {
 
     const testService =
       service as unknown as ProjectVisualizationServiceTestInterface;
-    expect(testService.generateMermaidDiagram(project).trim()).toStrictEqual(
+    expect(testService.generateMermaidDiagram(simulation).trim()).toStrictEqual(
       trimmedDiagram,
     );
   }

@@ -9,6 +9,7 @@ import { ProjectVisualizationService } from "./ProjectVisualizationService";
 import { expandTildePath, formatDate } from "../util";
 import fs from "node:fs";
 import path from "node:path";
+import { ProjectSimulation } from "./ProjectSimulation";
 
 export type { ProjectClientConfiguration };
 
@@ -58,7 +59,14 @@ export class ProjectService {
     const fileReader = new ProjectFileReader(clientConfig);
 
     const project = await fileReader.readProject(projectId);
-    await this.visualizationService.generateVisualization(project, outputPath);
+    const simulation = new ProjectSimulation(
+      project,
+      this.config.workDayClassifier,
+    ).run();
+    await this.visualizationService.generateVisualization(
+      simulation,
+      outputPath,
+    );
   }
 
   /**
