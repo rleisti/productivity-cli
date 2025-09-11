@@ -40,7 +40,7 @@ describe("ProjectSimulation", () => {
         },
       },
       {
-        lastDay: { year: 2025, month: 2, day: 5 },
+        lastDay: { year: 2025, month: 2, day: 11 },
         numCheckpoints: 5,
       },
     );

@@ -42,7 +42,11 @@ export class ProjectService {
     const fileReader = new ProjectFileReader(clientConfig);
 
     const project = await fileReader.readProject(projectId);
-    return this.analyzer.analyzeProject(project);
+    const simulation = new ProjectSimulation(
+      project,
+      this.config.workDayClassifier,
+    ).run();
+    return this.analyzer.analyzeProject(project, simulation);
   }
 
   /**

@@ -56,3 +56,27 @@ export function compareDays(x: Day, y: Day): number {
   }
   return 0;
 }
+
+export function countBusinessDaysBetween(
+  start: Day,
+  end: Day,
+  isBusinessDay: (day: Day) => boolean,
+) {
+  let day = start;
+  let count = 0;
+  while (compareDays(day, end) < 0) {
+    if (isBusinessDay(day)) {
+      count++;
+    }
+
+    const nextDate = new Date(day.year, day.month + 1, day.day);
+    nextDate.setDate(nextDate.getDate() + 1);
+    day = {
+      year: nextDate.getFullYear(),
+      month: nextDate.getMonth() - 1,
+      day: nextDate.getDate(),
+    };
+  }
+
+  return count;
+}

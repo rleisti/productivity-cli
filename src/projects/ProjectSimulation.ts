@@ -145,6 +145,9 @@ export class ProjectSimulation {
               checkpoint: currentPersonCheckpoints.get(ownerId)!,
             }))
             .sort((a, b) => compareDays(a.checkpoint.day, b.checkpoint.day))[0];
+          if (!ownerCheckpoint.checkpoint) {
+            continue;
+          }
 
           const newCheckpoint: Checkpoint = {
             id: nextCheckpointId++,
@@ -421,14 +424,14 @@ export class ProjectSimulation {
 
     let loopCounter = 0;
     let endDay = startDay;
-    let taskBurndown = 0;
-    while (taskBurndown < taskEstimate && loopCounter < 100) {
-      taskBurndown += this.getPersonHoursOnDay(personId, endDay);
+    let taskBurnUp = 0;
+    while (taskBurnUp < taskEstimate && loopCounter < 100) {
+      taskBurnUp += this.getPersonHoursOnDay(personId, endDay) / 8;
       endDay = this.nextBusinessDay(endDay);
       loopCounter++;
     }
 
-    if (taskBurndown >= taskEstimate) {
+    if (taskBurnUp >= taskEstimate) {
       return endDay;
     }
     return null;
