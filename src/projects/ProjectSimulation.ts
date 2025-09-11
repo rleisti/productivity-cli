@@ -215,7 +215,7 @@ export class ProjectSimulation {
     }
 
     return {
-      checkpoints,
+      checkpoints: this.optimizeCheckpoints(checkpoints),
     };
   }
 
@@ -453,5 +453,39 @@ export class ProjectSimulation {
       month: dateValue.getMonth() + 1,
       day: dateValue.getDate(),
     };
+  }
+
+  private optimizeCheckpoints(
+    checkpoints: Array<Checkpoint>,
+  ): Array<Checkpoint> {
+    const checkpointsToRemove = new Set<number>();
+
+    checkpoints.forEach((checkpoint) => {
+      if (
+        checkpoint.outgoing.length == 1 &&
+        checkpoint.outgoing[0].taskId === undefined &&
+        checkpoint.outgoing[0].personId !== undefined
+      ) {
+        const taskExecution = checkpoint.outgoing[0];
+        const targetCheckpoint = checkpoints.find(
+          (searchCheckpoint) => searchCheckpoint.id == taskExecution.to,
+        )!;
+        const incomingTaskExecution = checkpoint.incoming.find(
+          (task) => task.personId === taskExecution.personId,
+        );
+        if (incomingTaskExecution) {
+          checkpoint.incoming.forEach((task) => {
+            task.to = targetCheckpoint.id;
+            task.endDay = targetCheckpoint.day;
+            targetCheckpoint.incoming.push(task);
+          });
+          checkpointsToRemove.add(checkpoint.id);
+        }
+      }
+    });
+
+    return checkpoints.filter(
+      (checkpoint) => !checkpointsToRemove.has(checkpoint.id),
+    );
   }
 }

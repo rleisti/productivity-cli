@@ -22,6 +22,35 @@ describe("ProjectSimulation", () => {
                 },
               ],
             },
+          },
+        },
+        tasks: {
+          task1: minimalTask(["alice"], [], 2),
+          task2: minimalTask(["alice"], [], 3),
+        },
+      },
+      {
+        lastDay: { year: 2025, month: 1, day: 6 },
+        numCheckpoints: 3,
+      },
+    );
+  });
+
+  test("should optimize nodes that only have a transfer out", () => {
+    testSimulation(
+      {
+        admin: {
+          start_date: { year: 2025, month: 1, day: 1 },
+          person: {
+            alice: {
+              availability: [
+                {
+                  startDate: { year: 2025, month: 1, day: 1 },
+                  endDate: { year: 2025, month: 12, day: 31 },
+                  hoursPerDay: 8,
+                },
+              ],
+            },
             bob: {
               availability: [
                 {
@@ -41,7 +70,7 @@ describe("ProjectSimulation", () => {
       },
       {
         lastDay: { year: 2025, month: 2, day: 11 },
-        numCheckpoints: 5,
+        numCheckpoints: 4,
       },
     );
   });
