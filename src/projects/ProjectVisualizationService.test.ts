@@ -1,22 +1,8 @@
 import { ProjectVisualizationService } from "./ProjectVisualizationService";
-import { TasksSection } from "./ProjectDefinition";
-import { getWorkDayClassifier } from "../journal/workDay";
 import { SimulatedProject } from "./ProjectSimulation";
 
-// Test interface to access private methods
-interface ProjectVisualizationServiceTestInterface {
-  generateMermaidDiagram: (project: SimulatedProject) => string;
-  calculateCumulativeEstimate: (
-    incomingTasks: string[],
-    tasks: TasksSection,
-    criticalPath: string[],
-  ) => number;
-}
-
 describe("ProjectVisualizationService", () => {
-  const service = new ProjectVisualizationService(
-    getWorkDayClassifier("general"),
-  );
+  const service = new ProjectVisualizationService();
 
   describe("generateMermaidDiagram", () => {
     test("should generate diagram for empty project", () => {
@@ -132,9 +118,7 @@ describe("ProjectVisualizationService", () => {
       .map((line) => line.slice(indentation))
       .join("\n");
 
-    const testService =
-      service as unknown as ProjectVisualizationServiceTestInterface;
-    expect(testService.generateMermaidDiagram(simulation).trim()).toStrictEqual(
+    expect(service.generateMermaidDiagram(simulation).trim()).toStrictEqual(
       trimmedDiagram,
     );
   }

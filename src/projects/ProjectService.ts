@@ -28,9 +28,7 @@ export class ProjectService {
   constructor(config: ProjectServiceConfiguration) {
     this.config = config;
     this.analyzer = new ProjectAnalyzer(config.workDayClassifier);
-    this.visualizationService = new ProjectVisualizationService(
-      config.workDayClassifier,
-    );
+    this.visualizationService = new ProjectVisualizationService();
   }
 
   /**

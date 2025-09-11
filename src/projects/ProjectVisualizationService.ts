@@ -1,15 +1,8 @@
 import { promises as fs } from "fs";
 import { SimulatedProject } from "./ProjectSimulation";
-import { Day } from "../journal/types";
 import { formatDay } from "../journal/util";
 
 export class ProjectVisualizationService {
-  private readonly workDayClassifier: (day: Day) => boolean;
-
-  constructor(workDayClassifier: (day: Day) => boolean) {
-    this.workDayClassifier = workDayClassifier;
-  }
-
   /**
    * Generate a project visualization and save it to a file
    */
@@ -40,7 +33,7 @@ export class ProjectVisualizationService {
   /**
    * Generate Mermaid flowchart syntax for the project
    */
-  private generateMermaidDiagram(simulation: SimulatedProject): string {
+  public generateMermaidDiagram(simulation: SimulatedProject): string {
     if (simulation.checkpoints.length === 0) {
       return "flowchart TD\n    Start[Project Start]\n    End[Project End]\n    Start --> End";
     }
