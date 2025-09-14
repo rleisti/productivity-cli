@@ -8,13 +8,13 @@ A sample project for the smoke test.
 start_date = "2025-01-01"
 
 [person.alice]
-availability = ["2025-01-01 to 2025-06-30 at 8 hours"]
-
-[person.bob]
 availability = ["2025-01-01 to 2025-06-30 at 6 hours"]
 
+[person.bob]
+availability = ["2025-01-01 to 2025-06-30 at 7 hours"]
+
 [person.charlie]
-availability = ["2025-01-15 to 2025-06-30 at 4 hours"]
+availability = ["2025-01-01 to 2025-06-30 at 3.5 hours"]
 ```
 
 ## Tasks

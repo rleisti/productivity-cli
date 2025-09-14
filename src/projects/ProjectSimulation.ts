@@ -69,8 +69,7 @@ export class ProjectSimulation {
         incompleteTasks,
         floats,
       );
-      let advancedATask = false;
-      const advanceResult = this.advanceNextTask(
+      nextCheckpointId = this.advanceNextTask(
         sortedIncompleteTasks,
         checkpoints,
         nextCheckpointId,
@@ -78,20 +77,15 @@ export class ProjectSimulation {
         currentPersonCheckpoints,
         taskCheckpoints,
         incompleteTasks,
-        advancedATask,
       );
-      nextCheckpointId = advanceResult.nextCheckpointId;
-      advancedATask = advanceResult.advancedATask;
 
-      if (!advancedATask) {
-        nextCheckpointId = this.waitForDependencies(
-          sortedIncompleteTasks,
-          taskCheckpoints,
-          currentPersonCheckpoints,
-          nextCheckpointId,
-          checkpoints,
-        );
-      }
+      nextCheckpointId = this.waitForDependencies(
+        sortedIncompleteTasks,
+        taskCheckpoints,
+        currentPersonCheckpoints,
+        nextCheckpointId,
+        checkpoints,
+      );
     }
 
     return {
@@ -133,13 +127,22 @@ export class ProjectSimulation {
     currentPersonCheckpoints: Map<string, Checkpoint>,
     taskCheckpoints: Map<string, Array<Checkpoint>>,
     incompleteTasks: string[],
-    advancedATask: boolean,
   ) {
-    taskLoop: for (const taskId of sortedIncompleteTasks) {
+    for (const taskId of sortedIncompleteTasks) {
       const task = this.project.tasks[taskId];
+      let bestCheckpoint: Checkpoint | null = null;
+      let bestOutcome: TaskSimulationOutcome | null = null;
       for (const checkpoint of checkpoints) {
         const hasAllDependencies = task.dependencies.every((dep) =>
           checkpoint.completedTasks.includes(dep),
+        );
+        console.log(
+          "Evaluate task",
+          taskId,
+          "hasAllDependencies",
+          hasAllDependencies,
+          "current # checkpoints",
+          checkpoints.length,
         );
         if (hasAllDependencies) {
           const freePeople = this.personIds.filter(
@@ -147,36 +150,46 @@ export class ProjectSimulation {
               currentPersonCheckpoints.get(personId)?.id === checkpoint.id,
           );
           const outcome = this.simulateTask(taskId, checkpoint.day, freePeople);
-          if (outcome != null) {
-            const newCheckpoint: Checkpoint = {
-              id: nextCheckpointId++,
-              day: outcome.endDay,
-              completedTasks: checkpoint.completedTasks.concat(taskId),
-              incoming: [],
-              outgoing: [],
-            };
-            const execution: TaskExecution = {
-              ...outcome,
-              float: floats.get(taskId)!,
-              estimate: calculateTaskEstimate(task.estimate_days),
-              from: checkpoint.id,
-              to: newCheckpoint.id,
-            };
-            newCheckpoint.incoming.push(execution);
-            checkpoint.outgoing.push(execution);
-            checkpoints.push(newCheckpoint);
-            currentPersonCheckpoints.set(outcome.personId, newCheckpoint);
-            newCheckpoint.completedTasks.forEach((taskId) => {
-              taskCheckpoints.get(taskId)!.push(newCheckpoint);
-            });
-            incompleteTasks.splice(incompleteTasks.indexOf(taskId), 1);
-            advancedATask = true;
-            break taskLoop;
+          if (
+            outcome != null &&
+            (bestOutcome == null ||
+              compareDays(outcome.endDay, bestOutcome.endDay) < 0)
+          ) {
+            bestCheckpoint = checkpoint;
+            bestOutcome = outcome;
           }
         }
       }
+
+      if (bestOutcome != null && bestCheckpoint != null) {
+        console.log("Executing task", taskId, "with", bestOutcome.personId);
+        const newCheckpoint: Checkpoint = {
+          id: nextCheckpointId++,
+          day: bestOutcome.endDay,
+          completedTasks: bestCheckpoint.completedTasks.concat(taskId),
+          incoming: [],
+          outgoing: [],
+        };
+        const execution: TaskExecution = {
+          ...bestOutcome,
+          float: floats.get(taskId)!,
+          estimate: calculateTaskEstimate(task.estimate_days),
+          from: bestCheckpoint.id,
+          to: newCheckpoint.id,
+        };
+        newCheckpoint.incoming.push(execution);
+        bestCheckpoint.outgoing.push(execution);
+        checkpoints.push(newCheckpoint);
+        currentPersonCheckpoints.set(bestOutcome.personId, newCheckpoint);
+        newCheckpoint.completedTasks.forEach((taskId) => {
+          taskCheckpoints.get(taskId)!.push(newCheckpoint);
+        });
+        incompleteTasks.splice(incompleteTasks.indexOf(taskId), 1);
+
+        break;
+      }
     }
-    return { nextCheckpointId, advancedATask };
+    return nextCheckpointId;
   }
 
   private waitForDependencies(

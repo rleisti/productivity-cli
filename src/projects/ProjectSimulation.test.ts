@@ -74,12 +74,12 @@ describe("ProjectSimulation", () => {
       },
       {
         lastDay: { year: 2025, month: 1, day: 9 },
-        numCheckpoints: 4,
+        numCheckpoints: 5,
       },
     );
     expect(result.checkpoints[0].outgoing[0]).toStrictEqual({
       from: 0,
-      to: 3,
+      to: 4,
       taskId: "task2",
       personId: "alice",
       startDay: { year: 2025, month: 1, day: 1 },
@@ -87,9 +87,9 @@ describe("ProjectSimulation", () => {
       estimate: 5,
       float: 0,
     });
-    expect(result.checkpoints[0].outgoing[1]).toStrictEqual({
-      from: 0,
-      to: 2,
+    expect(result.checkpoints[1].outgoing[0]).toStrictEqual({
+      from: 2,
+      to: 3,
       taskId: "task1",
       personId: "bob",
       startDay: { year: 2025, month: 1, day: 1 },
