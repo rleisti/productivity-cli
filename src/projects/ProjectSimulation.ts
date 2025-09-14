@@ -455,7 +455,12 @@ export class ProjectSimulation {
       });
     }
     if (sortedOrder.length !== this.taskIds.length) {
-      throw new Error("Failed to sort tasks by topology");
+      throw new Error(
+        "Failed to sort the project tasks. sortedOrder: " +
+          JSON.stringify(sortedOrder) +
+          ", number of tasks: " +
+          this.taskIds.length,
+      );
     }
     return sortedOrder;
   }
