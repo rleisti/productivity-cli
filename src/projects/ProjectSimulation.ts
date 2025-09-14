@@ -10,7 +10,6 @@ export type SimulatedProject = {
 export type Checkpoint = {
   id: number;
   day: Day;
-  freePeople: Array<string>;
   completedTasks: Array<string>;
   incoming: Array<TaskExecution>;
   outgoing: Array<TaskExecution>;
@@ -120,7 +119,6 @@ export class ProjectSimulation {
     checkpoints.push({
       id: 0,
       day: this.project.admin.start_date,
-      freePeople: Object.keys(this.project.admin.person),
       completedTasks: [],
       incoming: [],
       outgoing: [],
@@ -144,16 +142,15 @@ export class ProjectSimulation {
           checkpoint.completedTasks.includes(dep),
         );
         if (hasAllDependencies) {
-          const outcome = this.simulateTask(
-            taskId,
-            checkpoint.day,
-            checkpoint.freePeople,
+          const freePeople = this.personIds.filter(
+            (personId) =>
+              currentPersonCheckpoints.get(personId)?.id === checkpoint.id,
           );
+          const outcome = this.simulateTask(taskId, checkpoint.day, freePeople);
           if (outcome != null) {
             const newCheckpoint: Checkpoint = {
               id: nextCheckpointId++,
               day: outcome.endDay,
-              freePeople: [outcome.personId],
               completedTasks: checkpoint.completedTasks.concat(taskId),
               incoming: [],
               outgoing: [],
@@ -211,7 +208,6 @@ export class ProjectSimulation {
       const newCheckpoint: Checkpoint = {
         id: nextCheckpointId++,
         day: ownerCheckpoint.checkpoint.day,
-        freePeople: [ownerCheckpoint.owner],
         completedTasks: Array.from(ownerCheckpoint.checkpoint.completedTasks),
         incoming: [],
         outgoing: [],

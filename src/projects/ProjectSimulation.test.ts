@@ -1,4 +1,4 @@
-import { ProjectDefinition, Task } from "./ProjectDefinition";
+import { AdminSection, ProjectDefinition, Task } from "./ProjectDefinition";
 import { ProjectSimulation, SimulatedProject } from "./ProjectSimulation";
 import { getWorkDayClassifier } from "../journal/workDay";
 import { Day } from "../journal/types";
@@ -7,30 +7,17 @@ import { compareDays } from "../util";
 describe("ProjectSimulation", () => {
   const workDays = getWorkDayClassifier("general");
 
-  test("should simulate a project", () => {
+  test("should simulate a simple project", () => {
     testSimulation(
       {
-        admin: {
-          start_date: { year: 2025, month: 1, day: 1 },
-          person: {
-            alice: {
-              availability: [
-                {
-                  startDate: { year: 2025, month: 1, day: 1 },
-                  endDate: { year: 2025, month: 12, day: 31 },
-                  hoursPerDay: 8,
-                },
-              ],
-            },
-          },
-        },
+        admin: standardAdmin(),
         tasks: {
           task1: minimalTask(["alice"], [], 2),
           task2: minimalTask(["alice"], [], 3),
         },
       },
       {
-        lastDay: { year: 2025, month: 1, day: 6 },
+        lastDay: { year: 2025, month: 1, day: 8 },
         numCheckpoints: 3,
       },
     );
@@ -75,14 +62,52 @@ describe("ProjectSimulation", () => {
     );
   });
 
+  test("should prioritize the critical path", () => {
+    const result = testSimulation(
+      {
+        admin: standardAdmin(),
+        tasks: {
+          task1: minimalTask(["alice", "bob"], [], 2),
+          task2: minimalTask(["alice", "bob"], [], 5),
+          task3: minimalTask(["alice"], ["task1", "task2"], 1),
+        },
+      },
+      {
+        lastDay: { year: 2025, month: 1, day: 9 },
+        numCheckpoints: 4,
+      },
+    );
+    expect(result.checkpoints[0].outgoing[0]).toStrictEqual({
+      from: 0,
+      to: 3,
+      taskId: "task2",
+      personId: "alice",
+      startDay: { year: 2025, month: 1, day: 1 },
+      endDay: { year: 2025, month: 1, day: 8 },
+      estimate: 5,
+      float: 0,
+    });
+    expect(result.checkpoints[0].outgoing[1]).toStrictEqual({
+      from: 0,
+      to: 2,
+      taskId: "task1",
+      personId: "bob",
+      startDay: { year: 2025, month: 1, day: 1 },
+      endDay: { year: 2025, month: 1, day: 3 },
+      estimate: 2,
+      float: 3,
+    });
+  });
+
   function testSimulation(
     project: ProjectDefinition,
     expectedResult: SimulationResult,
-  ) {
+  ): SimulatedProject {
     const simulation = new ProjectSimulation(project, workDays);
     const result = simulation.run();
     const analysis = analyzeSimulationResult(result);
     expect(analysis).toEqual(expectedResult);
+    return result;
   }
 
   function analyzeSimulationResult(result: SimulatedProject): SimulationResult {
@@ -91,6 +116,32 @@ describe("ProjectSimulation", () => {
         .map((it) => it.day)
         .sort((a, b) => compareDays(b, a))[0],
       numCheckpoints: result.checkpoints.length,
+    };
+  }
+
+  function standardAdmin(): AdminSection {
+    return {
+      start_date: { year: 2025, month: 1, day: 1 },
+      person: {
+        alice: {
+          availability: [
+            {
+              startDate: { year: 2025, month: 1, day: 1 },
+              endDate: { year: 2025, month: 12, day: 31 },
+              hoursPerDay: 8,
+            },
+          ],
+        },
+        bob: {
+          availability: [
+            {
+              startDate: { year: 2025, month: 1, day: 1 },
+              endDate: { year: 2025, month: 12, day: 31 },
+              hoursPerDay: 8,
+            },
+          ],
+        },
+      },
     };
   }
 

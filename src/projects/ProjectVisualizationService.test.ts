@@ -25,7 +25,6 @@ describe("ProjectVisualizationService", () => {
           {
             id: 0,
             day: { year: 2025, month: 1, day: 1 },
-            freePeople: [],
             completedTasks: [],
             incoming: [],
             outgoing: [
@@ -44,7 +43,6 @@ describe("ProjectVisualizationService", () => {
           {
             id: 1,
             day: { year: 2025, month: 1, day: 2 },
-            freePeople: [],
             completedTasks: [],
             incoming: [],
             outgoing: [],
@@ -68,7 +66,6 @@ describe("ProjectVisualizationService", () => {
           {
             id: 0,
             day: { year: 2025, month: 1, day: 1 },
-            freePeople: [],
             completedTasks: [],
             incoming: [],
             outgoing: [
@@ -87,7 +84,6 @@ describe("ProjectVisualizationService", () => {
           {
             id: 1,
             day: { year: 2025, month: 1, day: 2 },
-            freePeople: [],
             completedTasks: [],
             incoming: [],
             outgoing: [],
