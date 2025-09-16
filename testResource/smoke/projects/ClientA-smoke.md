@@ -65,7 +65,7 @@ summary = "Service B - Dev"
 description = "Development of Service B"
 status = "not-started"
 owners = ["bob"]
-dependencies = ["servicea-dd"]
+dependencies = ["serviceb-dd"]
 estimate_days = { min = 10, max = 30, expected = 15 }
 
 [serviceb-test]
@@ -89,6 +89,6 @@ summary = "Test"
 description = "System testing"
 status = "not-started"
 owners = ["charlie"]
-dependencies = ["system-dev"]
+dependencies = ["servicea-test", "serviceb-test", "system-dev"]
 estimate_days = { min = 10, max = 20, expected = 12 }
 ```
