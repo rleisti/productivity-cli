@@ -136,14 +136,6 @@ export class ProjectSimulation {
         const hasAllDependencies = task.dependencies.every((dep) =>
           checkpoint.completedTasks.includes(dep),
         );
-        console.log(
-          "Evaluate task",
-          taskId,
-          "hasAllDependencies",
-          hasAllDependencies,
-          "current # checkpoints",
-          checkpoints.length,
-        );
         if (hasAllDependencies) {
           const freePeople = this.personIds.filter(
             (personId) =>
@@ -162,7 +154,6 @@ export class ProjectSimulation {
       }
 
       if (bestOutcome != null && bestCheckpoint != null) {
-        console.log("Executing task", taskId, "with", bestOutcome.personId);
         const newCheckpoint: Checkpoint = {
           id: nextCheckpointId++,
           day: bestOutcome.endDay,
