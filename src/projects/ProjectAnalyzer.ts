@@ -5,7 +5,9 @@ import {
   TasksSection,
 } from "./ProjectDefinition";
 import { Day } from "../journal/types";
-import { calculateTotalEstimate, findCriticalPath } from "./util";
+import { calculateTotalEstimate } from "./util";
+import { SimulatedProject } from "./ProjectSimulation";
+import { compareDays, countBusinessDaysBetween } from "../util";
 
 export class ProjectAnalyzer {
   private readonly workDayClassifier: (day: Day) => boolean;
@@ -17,16 +19,17 @@ export class ProjectAnalyzer {
   /**
    * Analyze a project and generate a summary report
    */
-  public analyzeProject(project: ProjectDefinition): ProjectSummary {
+  public analyzeProject(
+    project: ProjectDefinition,
+    simulatedProject: SimulatedProject,
+  ): ProjectSummary {
     const status = this.calculateProjectStatus(project.tasks);
-    const criticalPath = findCriticalPath(project.tasks);
-    const totalEstimatedDays = calculateTotalEstimate(
-      criticalPath,
-      project.tasks,
-    );
-    const estimatedCompletionDate = this.calculateCompletionDate(
+    const estimatedCompletionDate =
+      this.findProjectEndDate(simulatedProject) ?? project.admin.start_date;
+    const totalEstimatedDays = countBusinessDaysBetween(
       project.admin.start_date,
-      totalEstimatedDays,
+      estimatedCompletionDate,
+      this.workDayClassifier,
     );
     const completionPercentage = this.calculateCompletionPercentage(
       project.tasks,
@@ -38,6 +41,16 @@ export class ProjectAnalyzer {
       estimatedCompletionDate,
       completionPercentage,
     };
+  }
+
+  private findProjectEndDate(
+    simulatedProject: SimulatedProject,
+  ): Day | undefined {
+    return simulatedProject.checkpoints
+      .map((checkpoint) => checkpoint.day)
+      .reduce((finishDay: Day | undefined, day) =>
+        !finishDay || compareDays(finishDay, day) < 0 ? day : finishDay,
+      );
   }
 
   private calculateProjectStatus(tasks: TasksSection): ProjectStatus {
