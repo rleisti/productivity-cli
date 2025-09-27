@@ -120,6 +120,9 @@ export class ProjectFileReader {
                 this.parseAvailability(avail as string),
               )
             : [],
+          roles: Array.isArray(personInfo.roles)
+            ? (personInfo.roles as string[])
+            : undefined,
         } as Person;
       }
     }

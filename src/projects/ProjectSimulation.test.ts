@@ -99,6 +99,38 @@ describe("ProjectSimulation", () => {
     });
   });
 
+  test("should handle role-based task assignment", () => {
+    testSimulation(
+      {
+        admin: adminWithRoles(),
+        tasks: {
+          task1: minimalTask(["developer"], [], 2),
+          task2: minimalTask(["designer"], [], 3),
+          task3: minimalTask(["alice"], [], 1), // Direct person assignment
+        },
+      },
+      {
+        lastDay: { year: 2025, month: 1, day: 6 },
+        numCheckpoints: 4,
+      },
+    );
+  });
+
+  test("should expand role assignments to multiple people", () => {
+    testSimulation(
+      {
+        admin: adminWithMultipleRoles(),
+        tasks: {
+          task1: minimalTask(["developer"], [], 2), // Both alice and bob can do this
+        },
+      },
+      {
+        lastDay: { year: 2025, month: 1, day: 3 },
+        numCheckpoints: 3,
+      },
+    );
+  });
+
   function testSimulation(
     project: ProjectDefinition,
     expectedResult: SimulationResult,
@@ -140,6 +172,62 @@ describe("ProjectSimulation", () => {
               hoursPerDay: 8,
             },
           ],
+        },
+      },
+    };
+  }
+
+  function adminWithRoles(): AdminSection {
+    return {
+      start_date: { year: 2025, month: 1, day: 1 },
+      person: {
+        alice: {
+          availability: [
+            {
+              startDate: { year: 2025, month: 1, day: 1 },
+              endDate: { year: 2025, month: 12, day: 31 },
+              hoursPerDay: 8,
+            },
+          ],
+          roles: ["developer"],
+        },
+        bob: {
+          availability: [
+            {
+              startDate: { year: 2025, month: 1, day: 1 },
+              endDate: { year: 2025, month: 12, day: 31 },
+              hoursPerDay: 8,
+            },
+          ],
+          roles: ["designer"],
+        },
+      },
+    };
+  }
+
+  function adminWithMultipleRoles(): AdminSection {
+    return {
+      start_date: { year: 2025, month: 1, day: 1 },
+      person: {
+        alice: {
+          availability: [
+            {
+              startDate: { year: 2025, month: 1, day: 1 },
+              endDate: { year: 2025, month: 12, day: 31 },
+              hoursPerDay: 8,
+            },
+          ],
+          roles: ["developer", "designer"],
+        },
+        bob: {
+          availability: [
+            {
+              startDate: { year: 2025, month: 1, day: 1 },
+              endDate: { year: 2025, month: 12, day: 31 },
+              hoursPerDay: 8,
+            },
+          ],
+          roles: ["developer"],
         },
       },
     };

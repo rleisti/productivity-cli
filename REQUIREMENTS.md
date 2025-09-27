@@ -201,6 +201,8 @@ following properties:
   - `availability`: an array of availability periods in the format `YYYY-MM-DD to YYYY-MM-DD at # hours`
     indicating the start and end dates of the person's availability for the project, and the number of hours
     per day (decimal value) that the person is available for the project.
+  - `roles`: and optional array of role identifiers that indicate what tasks the person may be assigned to
+    on a role-basis.
 
 **REQ-076**: The project definition file 'Tasks' section shall support an embedded TOML document with the
 following properties:
@@ -213,7 +215,7 @@ following properties:
     - `max`: the maximum number of days to complete the task
     - `expected`: the expected number of days to complete the task
   - `status`: the status of the task, one of: `not-started`, `in-progress`, `complete`
-  - `owners`: an array of person identifiers that are responsible for completing the task
+  - `owners`: an array of person or role identifiers that are responsible for completing the task
   - `dependencies`: an array of task identifiers that must be completed before the task can be started
 
 **REQ-088**: When the system is invoked with the 'project-init' command, then the system shall generate a sample
