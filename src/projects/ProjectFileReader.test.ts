@@ -94,17 +94,17 @@ describe("ProjectFileReader", () => {
       ]);
 
       expect(project.admin.person.bob).toBeDefined();
-      expect(project.admin.person.bob.roles).toBeUndefined();
+      expect(project.admin.person.bob.roles).toStrictEqual([]);
     });
 
     it("should handle people without roles", async () => {
       const project = await reader.readProject("mobile-app");
 
       expect(project.admin.person.charlie).toBeDefined();
-      expect(project.admin.person.charlie.roles).toBeUndefined();
+      expect(project.admin.person.charlie.roles).toStrictEqual([]);
 
       expect(project.admin.person.diana).toBeDefined();
-      expect(project.admin.person.diana.roles).toBeUndefined();
+      expect(project.admin.person.diana.roles).toStrictEqual([]);
     });
   });
 });

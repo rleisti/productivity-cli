@@ -122,7 +122,7 @@ export class ProjectFileReader {
             : [],
           roles: Array.isArray(personInfo.roles)
             ? (personInfo.roles as string[])
-            : undefined,
+            : [],
         } as Person;
       }
     }
