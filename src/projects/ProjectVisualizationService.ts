@@ -17,7 +17,7 @@ export class ProjectVisualizationService {
     try {
       await fs.writeFile(outputPath, mermaidDiagram);
 
-      const imagePath = outputPath.replace(/\.mmd$/, ".png");
+      const imagePath = outputPath.replace(/\.mmd$/, ".svg");
       await this.renderMermaidDiagram(outputPath, imagePath);
 
       console.log(`Mermaid diagram saved to: ${outputPath}`);
