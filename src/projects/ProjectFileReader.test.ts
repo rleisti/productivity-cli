@@ -83,5 +83,28 @@ describe("ProjectFileReader", () => {
         expected: 6,
       });
     });
+
+    it("should parse roles for people when present", async () => {
+      const project = await reader.readProject("website-redesign");
+
+      expect(project.admin.person.alice).toBeDefined();
+      expect(project.admin.person.alice.roles).toEqual([
+        "developer",
+        "designer",
+      ]);
+
+      expect(project.admin.person.bob).toBeDefined();
+      expect(project.admin.person.bob.roles).toStrictEqual([]);
+    });
+
+    it("should handle people without roles", async () => {
+      const project = await reader.readProject("mobile-app");
+
+      expect(project.admin.person.charlie).toBeDefined();
+      expect(project.admin.person.charlie.roles).toStrictEqual([]);
+
+      expect(project.admin.person.diana).toBeDefined();
+      expect(project.admin.person.diana.roles).toStrictEqual([]);
+    });
   });
 });

@@ -1,6 +1,6 @@
 import { ProjectDefinition } from "./ProjectDefinition";
 import { Day } from "../journal/types";
-import { calculateTaskEstimate } from "./util";
+import { calculateTaskEstimate, expandTaskOwners } from "./util";
 import { compareDays } from "../util";
 
 export type SimulatedProject = {
@@ -199,7 +199,14 @@ export class ProjectSimulation {
         continue;
       }
 
-      const ownerCheckpoint = task.owners
+      const expandedOwners = expandTaskOwners(task.owners, this.project);
+      const validOwners = expandedOwners.filter((ownerId) =>
+        currentPersonCheckpoints.has(ownerId),
+      );
+      if (validOwners.length === 0) {
+        continue;
+      }
+      const ownerCheckpoint = validOwners
         .map((ownerId) => ({
           owner: ownerId,
           checkpoint: currentPersonCheckpoints.get(ownerId)!,
@@ -295,7 +302,11 @@ export class ProjectSimulation {
   ): TaskSimulationOutcome | null {
     let taskFinishDay: Day | null = null;
     let taskOwner: string | null = null;
-    for (const ownerId of this.project.tasks[taskId].owners) {
+    const expandedOwners = expandTaskOwners(
+      this.project.tasks[taskId].owners,
+      this.project,
+    );
+    for (const ownerId of expandedOwners) {
       if (freePeople.includes(ownerId)) {
         const proposedFinishDate = this.calculateFinishDate(
           taskId,

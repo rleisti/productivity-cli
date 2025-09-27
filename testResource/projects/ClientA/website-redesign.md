@@ -12,6 +12,7 @@ availability = [
     "2025-01-06 to 2025-02-28 at 8 hours",
     "2025-03-01 to 2025-03-31 at 4 hours"
 ]
+roles = ["developer", "designer"]
 
 [person.bob]
 availability = ["2025-01-13 to 2025-03-31 at 6 hours"]
@@ -32,7 +33,7 @@ estimate_days = { min = 3, max = 5, expected = 4 }
 summary = "Design wireframes and mockups"
 description = "Create wireframes, design mockups, and establish design system"
 status = "in-progress"
-owners = ["alice"]
+owners = ["designer"]
 dependencies = ["research"]
 estimate_days = { min = 5, max = 8, expected = 6 }
 
@@ -40,7 +41,7 @@ estimate_days = { min = 5, max = 8, expected = 6 }
 summary = "Frontend development"
 description = "Implement the new design using React and modern CSS"
 status = "not-started"
-owners = ["bob"]
+owners = ["developer"]
 dependencies = ["design"]
 estimate_days = { min = 8, max = 12, expected = 10 }
 
@@ -56,7 +57,7 @@ estimate_days = { min = 3, max = 5, expected = 4 }
 summary = "Testing and QA"
 description = "Comprehensive testing across devices and browsers"
 status = "not-started"
-owners = ["alice", "bob"]
+owners = ["developer", "designer"]
 dependencies = ["backend"]
 estimate_days = { min = 2, max = 4, expected = 3 }
 

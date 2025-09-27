@@ -15,6 +15,8 @@ export interface PersonAvailability {
 export interface Person {
   /** Array of availability periods for this person */
   availability: PersonAvailability[];
+  /** Optional array of role identifiers that this person can fulfill */
+  roles?: string[];
 }
 
 export interface TaskEstimate {
