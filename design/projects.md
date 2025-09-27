@@ -70,6 +70,13 @@ status = "not-started"
 ```
 ````
 
+## Project Simulation
+
+Given a project specification file, the system will simulate the project execution by observing the constraints
+of dependencies between tasks and dependencies on people. The simulation will assign people to tasks (where tasks
+have more than one eligible person) and assign estimated start and end dates to those tasks. The simulation will
+be used to report on the total project estimate and also used in the visualization.
+
 ## Project Tools
 
 Given projects defined by project specification files, the following tools shall be provided to extract

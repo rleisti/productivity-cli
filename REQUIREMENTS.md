@@ -234,12 +234,18 @@ a summary report for the specified project.
 - the client identifier
 - the project identifier
 
+**REQ-082**: The 'project-summary' command shall accept an optional `--output` parameter to specify the output
+file name for the visualization.
+
+**REQ-083**: When no `--output` parameter is specified and the `project-summary` command is invoked, then the
+system shall generate a mermaid instruction file in the current working directory with the name `project.mmd`.
+
 **REQ-079**: The 'project-summary' command shall report the following for the specified project:
 
 - The overall project status as:
-  - "Not started" if all the tasks have the 'not-started' status
-  - "In progress" if any of the tasks have the 'in-progress' or 'complete' status
-  - "Complete" if all the tasks have the 'complete' status
+  - "Not started" if all the tasks have the 'not-started' status.
+  - "In progress" if any of the tasks have the 'in-progress' or 'complete' status.
+  - "Complete" if all the tasks have the 'complete' status.
 - The total estimated days for the project, determined by the following rules:
   - For any given task, the estimated days is calculated by the formula `(MIN + MAX + 4 * EXPECTED) / 6`
     where `MIN` is the minimum estimate, `MAX` is the maximum estimate, and `EXPECTED` is the expected
@@ -248,34 +254,24 @@ a summary report for the specified project.
   - The critical path is defined as the set of tasks that make up the longest path, by estimate, from the start task
     to the end task.
 - The estimated project completion date, calculated by adding the total estimated days to the start date of the project,
-  and considering only business days. (as defined by the `work_days` configuration)
+  and considering only business days. (as defined by the `work_days` configuration).
 - The project completion percentage, calculated by dividing the total estimated days by the number of days of completed
-  effort determined by summing the estimated days for all tasks that have status 'complete'
+  effort determined by summing the estimated days for all tasks that have status 'complete'.
+- A visualization of the project tasks.
 
-### 5.3 Project Visualization
-
-**REQ-080**: When the system is invoked with the 'project-visualize' command then the system shall generate a
-graph (mermaidJS file) depicting the project work breakdown structure.
-
-**REQ-081**: The 'project-visualize' command shall accept the following positional parameters:
-
-- the client identifier
-- the project identifier
-
-**REQ-082**: The 'project-visualize' command shall accept an optional `--output` parameter to specify the output
-file name.
-
-**REQ-083**: When no `--output` parameter is specified and the `project-visualize` command is invoked, then the
-system shall generate an image file in the current working directory with the name `project.mmd`.
-
-**REQ-084**: The project visualization shall display a graph where edges represent tasks and vertices are used to
+**REQ-084**: The project visualization shall construct a graph where edges represent tasks and vertices are used to
 group dependencies for the task, by having tasks which are dependencies point at a vertex while tasks which are
-dependents point away from the vertex.
+dependents point away from the vertex. Additional vertices and edges may be included as needed to represent waiting
+times for task and people dependencies.
 
-**REQ-085**: Each edge shall be labeled by the task summary.
+**REQ-085**: Each edge label shall contain:
 
-**REQ-086**: Each vertex shall be labelled by the estimated days to arrive at that vertex, determined by the
-critical path algorithm considering all tasks which point at the vertex.
+- The task summary, if the edge represents the completion of a task.
+- The name of the person completing the task, if the edge represents the completion of a task.
+- The name of the person waiting, if the edge represents a wait time for a person between the completion of one task
+  the wait to begin another.
+- The calculated task estimate, if the edge represents the completion of a task.
+- The calculated task float, if the edge represents the completion of a task, and the float is a positive number.
 
 ## 6. Command Line Interface
 

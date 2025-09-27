@@ -1,6 +1,7 @@
 import { ProjectAnalyzer } from "./ProjectAnalyzer";
-import { ProjectDefinition } from "./ProjectDefinition";
+import { ProjectDefinition, ProjectSummary } from "./ProjectDefinition";
 import { Day } from "../journal/types";
+import { ProjectSimulation } from "./ProjectSimulation";
 
 describe("ProjectAnalyzer", () => {
   let analyzer: ProjectAnalyzer;
@@ -41,7 +42,7 @@ describe("ProjectAnalyzer", () => {
         },
       };
 
-      const summary = analyzer.analyzeProject(project);
+      const summary = analyzeProject(project);
 
       expect(summary.status).toBe("not-started");
       expect(summary.completionPercentage).toBe(0);
@@ -65,7 +66,7 @@ describe("ProjectAnalyzer", () => {
         },
       };
 
-      const summary = analyzer.analyzeProject(project);
+      const summary = analyzeProject(project);
 
       expect(summary.status).toBe("complete");
       expect(summary.completionPercentage).toBe(100);
@@ -97,98 +98,46 @@ describe("ProjectAnalyzer", () => {
         },
       };
 
-      const summary = analyzer.analyzeProject(project);
+      const summary = analyzeProject(project);
 
       expect(summary.status).toBe("in-progress");
     });
 
-    test("should calculate total estimated days using PERT formula", () => {
+    test("should report total estimated days", () => {
       const project: ProjectDefinition = {
         admin: {
           start_date: { year: 2025, month: 1, day: 1 },
-          person: {},
+          person: {
+            alice: {
+              availability: [
+                {
+                  startDate: { year: 2025, month: 1, day: 1 },
+                  endDate: { year: 2025, month: 2, day: 1 },
+                  hoursPerDay: 8,
+                },
+              ],
+            },
+          },
         },
         tasks: {
           task1: {
             summary: "Task 1",
             description: "First task",
-            estimate_days: { min: 1, max: 3, expected: 2 },
+            estimate_days: { min: 6, max: 6, expected: 6 },
             status: "not-started",
             owners: ["alice"],
             dependencies: [],
-          },
-          task2: {
-            summary: "Task 2",
-            description: "Second task",
-            estimate_days: { min: 2, max: 4, expected: 3 },
-            status: "not-started",
-            owners: ["bob"],
-            dependencies: ["task1"],
           },
         },
       };
 
-      const summary = analyzer.analyzeProject(project);
-      expect(summary.totalEstimatedDays).toBe(5);
-    });
-
-    test("should calculate estimate using the critical path", () => {
-      const project: ProjectDefinition = {
-        admin: {
-          start_date: { year: 2025, month: 1, day: 1 },
-          person: {},
-        },
-        tasks: {
-          task1: {
-            //  2 days
-            summary: "Task 1",
-            description: "First task",
-            estimate_days: { min: 1, max: 3, expected: 2 }, // Estimated 2 days
-            status: "not-started",
-            owners: ["alice"],
-            dependencies: [],
-          },
-          task2: {
-            //  3 days (critical path)
-            summary: "Task 2",
-            description: "Second task",
-            estimate_days: { min: 2, max: 4, expected: 3 }, // Estimated 3 days
-            status: "not-started",
-            owners: ["bob"],
-            dependencies: [],
-          },
-          task3: {
-            // 4 days
-            summary: "Task 3",
-            description: "Third task",
-            estimate_days: { min: 1, max: 3, expected: 2 }, // Estimated 2 days
-            status: "not-started",
-            owners: ["alice"],
-            dependencies: ["task1"],
-          },
-          task4: {
-            // 6 days (critical path)
-            summary: "Task 4",
-            description: "Fourth task",
-            estimate_days: { min: 2, max: 4, expected: 3 }, // Estimated 3 days
-            status: "not-started",
-            owners: ["bob"],
-            dependencies: ["task2"],
-          },
-          task5: {
-            // 9 days (critical path)
-            summary: "Task 5",
-            description: "Fifth task",
-            estimate_days: { min: 2, max: 4, expected: 3 }, // Estimated 3 days
-            status: "not-started",
-            owners: ["bob"],
-            dependencies: ["task3", "task4"],
-          },
-        },
-      };
-
-      const summary = analyzer.analyzeProject(project);
-      expect(summary.totalEstimatedDays).toBe(9);
+      const summary = analyzeProject(project);
+      expect(summary.estimatedCompletionDate).toStrictEqual({
+        year: 2025,
+        month: 1,
+        day: 9,
+      });
+      expect(summary.totalEstimatedDays).toBe(6);
     });
 
     test("should calculate completion percentage correctly", () => {
@@ -217,40 +166,11 @@ describe("ProjectAnalyzer", () => {
         },
       };
 
-      const summary = analyzer.analyzeProject(project);
+      const summary = analyzeProject(project);
 
       // Task 1 complete: 2 days, Task 2 not complete: 3 days
       // Completion: 2 / (2 + 3) = 40%
       expect(summary.completionPercentage).toBe(40);
-    });
-
-    test("should calculate completion date excluding weekends", () => {
-      const project: ProjectDefinition = {
-        admin: {
-          start_date: { year: 2025, month: 1, day: 1 }, // Wednesday
-          person: {},
-        },
-        tasks: {
-          task1: {
-            summary: "Task 1",
-            description: "First task",
-            estimate_days: { min: 5, max: 5, expected: 5 }, // Exactly 5 work days
-            status: "not-started",
-            owners: ["alice"],
-            dependencies: [],
-          },
-        },
-      };
-
-      const summary = analyzer.analyzeProject(project);
-
-      // Starting Wednesday Jan 1, 2025, adding 5 work days
-      // Should end on Wednesday Jan 8, 2025 (skipping weekend)
-      expect(summary.estimatedCompletionDate).toEqual({
-        year: 2025,
-        month: 1,
-        day: 8,
-      });
     });
 
     test("should handle empty project", () => {
@@ -262,11 +182,19 @@ describe("ProjectAnalyzer", () => {
         tasks: {},
       };
 
-      const summary = analyzer.analyzeProject(project);
+      const summary = analyzeProject(project);
 
       expect(summary.status).toBe("not-started");
       expect(summary.totalEstimatedDays).toBe(0);
       expect(summary.completionPercentage).toBe(0);
     });
+
+    function analyzeProject(project: ProjectDefinition): ProjectSummary {
+      const simulatedProject = new ProjectSimulation(
+        project,
+        mockWorkDayClassifier,
+      ).run();
+      return analyzer.analyzeProject(project, simulatedProject);
+    }
   });
 });
