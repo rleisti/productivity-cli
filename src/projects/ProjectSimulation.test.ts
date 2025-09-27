@@ -4,6 +4,9 @@ import { getWorkDayClassifier } from "../journal/workDay";
 import { Day } from "../journal/types";
 import { compareDays } from "../util";
 
+// Set to true to enable full output of the simulation results.
+const logResults = true;
+
 describe("ProjectSimulation", () => {
   const workDays = getWorkDayClassifier("general");
 
@@ -74,12 +77,12 @@ describe("ProjectSimulation", () => {
       },
       {
         lastDay: { year: 2025, month: 1, day: 9 },
-        numCheckpoints: 5,
+        numCheckpoints: 4,
       },
     );
     expect(result.checkpoints[0].outgoing[0]).toStrictEqual({
       from: 0,
-      to: 4,
+      to: 1,
       taskId: "task2",
       personId: "alice",
       startDay: { year: 2025, month: 1, day: 1 },
@@ -87,9 +90,9 @@ describe("ProjectSimulation", () => {
       estimate: 5,
       float: 0,
     });
-    expect(result.checkpoints[1].outgoing[0]).toStrictEqual({
-      from: 2,
-      to: 3,
+    expect(result.checkpoints[0].outgoing[1]).toStrictEqual({
+      from: 0,
+      to: 2,
       taskId: "task1",
       personId: "bob",
       startDay: { year: 2025, month: 1, day: 1 },
@@ -126,7 +129,7 @@ describe("ProjectSimulation", () => {
       },
       {
         lastDay: { year: 2025, month: 1, day: 3 },
-        numCheckpoints: 3,
+        numCheckpoints: 2,
       },
     );
   });
@@ -138,6 +141,9 @@ describe("ProjectSimulation", () => {
     const simulation = new ProjectSimulation(project, workDays);
     const result = simulation.run();
     const analysis = analyzeSimulationResult(result);
+    if (logResults) {
+      console.log(JSON.stringify(result, undefined, 4));
+    }
     expect(analysis).toEqual(expectedResult);
     return result;
   }

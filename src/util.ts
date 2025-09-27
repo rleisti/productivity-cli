@@ -53,6 +53,8 @@ export function compareDays(x: Day, y: Day): number {
     return 1;
   } else if (x.day < y.day) {
     return -1;
+  } else if (x.day > y.day) {
+    return 1;
   }
   return 0;
 }

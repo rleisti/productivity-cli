@@ -61,15 +61,12 @@ export class ProjectSimulation {
     const incompleteTasks = Array.from(this.taskIds);
 
     let nextCheckpointId = 1;
-    let iterationCounter = 0;
-    while (incompleteTasks.length > 0 && iterationCounter < 1000) {
-      iterationCounter++;
-
+    while (incompleteTasks.length > 0) {
       const sortedIncompleteTasks = this.sortedTasksByFloats(
         incompleteTasks,
         floats,
       );
-      nextCheckpointId = this.advanceNextTask(
+      const advancedCheckpointId = this.advanceNextTask(
         sortedIncompleteTasks,
         checkpoints,
         nextCheckpointId,
@@ -78,14 +75,10 @@ export class ProjectSimulation {
         taskCheckpoints,
         incompleteTasks,
       );
-
-      nextCheckpointId = this.waitForDependencies(
-        sortedIncompleteTasks,
-        taskCheckpoints,
-        currentPersonCheckpoints,
-        nextCheckpointId,
-        checkpoints,
-      );
+      if (advancedCheckpointId === nextCheckpointId) {
+        break;
+      }
+      nextCheckpointId = advancedCheckpointId;
     }
 
     return {
@@ -130,147 +123,102 @@ export class ProjectSimulation {
   ) {
     for (const taskId of sortedIncompleteTasks) {
       const task = this.project.tasks[taskId];
-      let bestCheckpoint: Checkpoint | null = null;
-      let bestOutcome: TaskSimulationOutcome | null = null;
-      for (const checkpoint of checkpoints) {
-        const hasAllDependencies = task.dependencies.every((dep) =>
-          checkpoint.completedTasks.includes(dep),
-        );
-        if (hasAllDependencies) {
-          const freePeople = this.personIds.filter(
-            (personId) =>
-              currentPersonCheckpoints.get(personId)?.id === checkpoint.id,
-          );
-          const outcome = this.simulateTask(taskId, checkpoint.day, freePeople);
-          if (
-            outcome != null &&
-            (bestOutcome == null ||
-              compareDays(outcome.endDay, bestOutcome.endDay) < 0)
-          ) {
-            bestCheckpoint = checkpoint;
-            bestOutcome = outcome;
-          }
-        }
-      }
-
-      if (bestOutcome != null && bestCheckpoint != null) {
-        const newCheckpoint: Checkpoint = {
-          id: nextCheckpointId++,
-          day: bestOutcome.endDay,
-          completedTasks: bestCheckpoint.completedTasks.concat(taskId),
-          incoming: [],
-          outgoing: [],
-        };
-        const execution: TaskExecution = {
-          ...bestOutcome,
-          float: floats.get(taskId)!,
-          estimate: calculateTaskEstimate(task.estimate_days),
-          from: bestCheckpoint.id,
-          to: newCheckpoint.id,
-        };
-        newCheckpoint.incoming.push(execution);
-        bestCheckpoint.outgoing.push(execution);
-        checkpoints.push(newCheckpoint);
-        currentPersonCheckpoints.set(bestOutcome.personId, newCheckpoint);
-        newCheckpoint.completedTasks.forEach((taskId) => {
-          taskCheckpoints.get(taskId)!.push(newCheckpoint);
-        });
-        incompleteTasks.splice(incompleteTasks.indexOf(taskId), 1);
-
-        break;
-      }
-    }
-    return nextCheckpointId;
-  }
-
-  private waitForDependencies(
-    sortedIncompleteTasks: Array<string>,
-    taskCheckpoints: Map<string, Array<Checkpoint>>,
-    currentPersonCheckpoints: Map<string, Checkpoint>,
-    nextCheckpointId: number,
-    checkpoints: Checkpoint[],
-  ) {
-    for (const taskId of sortedIncompleteTasks) {
-      const task = this.project.tasks[taskId];
-      const isTaskReady = task.dependencies.every(
-        (dependency) => taskCheckpoints.get(dependency)!.length > 0,
-      );
-      if (!isTaskReady) {
-        continue;
-      }
-
-      const expandedOwners = expandTaskOwners(task.owners, this.project);
-      const validOwners = expandedOwners.filter((ownerId) =>
-        currentPersonCheckpoints.has(ownerId),
-      );
-      if (validOwners.length === 0) {
-        continue;
-      }
-      const ownerCheckpoint = validOwners
-        .map((ownerId) => ({
-          owner: ownerId,
-          checkpoint: currentPersonCheckpoints.get(ownerId)!,
+      const outcomes = checkpoints
+        .filter((checkpoint) =>
+          task.dependencies.every(
+            (dep) =>
+              checkpoint.completedTasks.includes(dep) ||
+              taskCheckpoints
+                .get(dep)
+                ?.find(
+                  (depCheckpoint) =>
+                    compareDays(depCheckpoint.day, checkpoint.day) <= 0,
+                ),
+          ),
+        )
+        .map((checkpoint) => ({
+          checkpoint,
+          freePeople: this.personIds.filter((personId) => {
+            const personCheckpoint = currentPersonCheckpoints.get(personId);
+            if (!personCheckpoint) {
+              return false;
+            }
+            return (
+              personCheckpoint.id === checkpoint.id ||
+              compareDays(personCheckpoint.day, checkpoint.day) <= 0
+            );
+          }),
         }))
-        .sort((a, b) => compareDays(a.checkpoint.day, b.checkpoint.day))[0];
-      if (!ownerCheckpoint.checkpoint) {
+        .map(({ checkpoint, freePeople }) => ({
+          checkpoint,
+          outcome: this.simulateTask(taskId, checkpoint.day, freePeople),
+        }))
+        .filter((it) => it.outcome != null)
+        .sort((a, b) => compareDays(a.outcome!.endDay, b.outcome!.endDay));
+
+      if (outcomes.length === 0) {
         continue;
       }
+      const bestOutcome = outcomes[0].outcome!;
+      const bestCheckpoint = outcomes[0].checkpoint;
 
       const newCheckpoint: Checkpoint = {
         id: nextCheckpointId++,
-        day: ownerCheckpoint.checkpoint.day,
-        completedTasks: Array.from(ownerCheckpoint.checkpoint.completedTasks),
+        day: bestOutcome.endDay,
+        completedTasks: bestCheckpoint.completedTasks.concat(taskId),
         incoming: [],
         outgoing: [],
       };
-      const waitEvent: TaskExecution = {
-        from: ownerCheckpoint.checkpoint.id,
+      const execution: TaskExecution = {
+        ...bestOutcome,
+        float: floats.get(taskId)!,
+        estimate: calculateTaskEstimate(task.estimate_days),
+        from: bestCheckpoint.id,
         to: newCheckpoint.id,
-        personId: ownerCheckpoint.owner,
-        startDay: ownerCheckpoint.checkpoint.day,
-        endDay: ownerCheckpoint.checkpoint.day,
       };
-      newCheckpoint.incoming.push(waitEvent);
-      ownerCheckpoint.checkpoint.outgoing.push(waitEvent);
+      bestCheckpoint.outgoing.push(execution);
+      newCheckpoint.incoming.push(execution);
       checkpoints.push(newCheckpoint);
-      currentPersonCheckpoints.set(ownerCheckpoint.owner, newCheckpoint);
 
-      let iterationCounter2 = 0;
-      let missingDependencies = task.dependencies.filter(
-        (dependency) => !newCheckpoint.completedTasks.includes(dependency),
+      const missingDependencies = task.dependencies.filter(
+        (dep) => !bestCheckpoint?.completedTasks.includes(dep),
       );
-      while (missingDependencies.length > 0 && iterationCounter2 < 100) {
-        iterationCounter2++;
-
-        const dependency = missingDependencies[0];
-        const sourceCheckpoint = taskCheckpoints.get(dependency)![0];
-        const [earliestDay, latestDay] =
-          compareDays(newCheckpoint.day, sourceCheckpoint.day) < 0
-            ? [newCheckpoint.day, sourceCheckpoint.day]
-            : [sourceCheckpoint.day, newCheckpoint.day];
-        const sourceWaitEvent: TaskExecution = {
-          from: sourceCheckpoint.id,
-          to: newCheckpoint.id,
-          startDay: earliestDay,
-          endDay: latestDay,
+      missingDependencies.forEach((dep) => {
+        const depCheckpoint = taskCheckpoints
+          .get(dep)!
+          .filter((it) => compareDays(it.day, bestCheckpoint.day) <= 0)
+          .sort((a, b) => compareDays(a.day, b.day))[0];
+        const waitEvent: TaskExecution = {
+          from: depCheckpoint.id,
+          to: bestCheckpoint.id,
+          startDay: depCheckpoint.day,
+          endDay: bestCheckpoint.day,
         };
-        newCheckpoint.day = latestDay;
-        newCheckpoint.incoming.push(sourceWaitEvent);
-        newCheckpoint.completedTasks = newCheckpoint.completedTasks.concat(
-          sourceCheckpoint.completedTasks.filter(
-            (task) => !newCheckpoint.completedTasks.includes(task),
-          ),
-        );
-        sourceCheckpoint.outgoing.push(sourceWaitEvent);
+        depCheckpoint.outgoing.push(waitEvent);
+        bestCheckpoint.incoming.push(waitEvent);
+        bestCheckpoint.completedTasks.push(dep);
+        newCheckpoint.completedTasks.push(dep);
+      });
 
-        missingDependencies = task.dependencies.filter(
-          (dependency) => !newCheckpoint.completedTasks.includes(dependency),
-        );
+      const personOriginCheckpoint = currentPersonCheckpoints.get(
+        bestOutcome.personId,
+      )!;
+      if (personOriginCheckpoint.id !== bestCheckpoint.id) {
+        const waitEvent: TaskExecution = {
+          from: personOriginCheckpoint.id,
+          to: bestCheckpoint.id,
+          personId: bestOutcome.personId,
+          startDay: personOriginCheckpoint.day,
+          endDay: bestCheckpoint.day,
+        };
+        personOriginCheckpoint.outgoing.push(waitEvent);
+        bestCheckpoint.incoming.push(waitEvent);
       }
-
+      currentPersonCheckpoints.set(bestOutcome.personId, newCheckpoint);
       newCheckpoint.completedTasks.forEach((taskId) => {
         taskCheckpoints.get(taskId)!.push(newCheckpoint);
       });
+      incompleteTasks.splice(incompleteTasks.indexOf(taskId), 1);
 
       break;
     }
