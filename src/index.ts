@@ -331,7 +331,6 @@ async function generateProjectSummary(args: Arguments) {
   printProjectSummary(summary, client, project);
 
   await projectService.generateProjectVisualization(client, project, output);
-  console.log(`Project visualization generated: ${output}`);
 }
 
 async function initializeProject(args: Arguments) {

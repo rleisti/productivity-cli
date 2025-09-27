@@ -1,6 +1,8 @@
 import { promises as fs } from "fs";
 import { SimulatedProject } from "./ProjectSimulation";
 import { formatDay } from "../journal/util";
+import path from "node:path";
+import { spawn } from "node:child_process";
 
 export class ProjectVisualizationService {
   /**
@@ -16,15 +18,10 @@ export class ProjectVisualizationService {
       await fs.writeFile(outputPath, mermaidDiagram);
 
       const imagePath = outputPath.replace(/\.mmd$/, ".png");
+      await this.renderMermaidDiagram(outputPath, imagePath);
+
       console.log(`Mermaid diagram saved to: ${outputPath}`);
-      console.log("To generate PNG/SVG, you can:");
-      console.log(
-        `1. Use Mermaid CLI: npx @mermaid-js/mermaid-cli -i ${outputPath} -o ${imagePath}`,
-      );
-      console.log(
-        "2. Visit https://mermaid.live/ and paste the diagram content",
-      );
-      console.log("3. Use VS Code with Mermaid extensions");
+      console.log(`PNG diagram saved to: ${imagePath}`);
     } catch (error) {
       throw new Error(`Failed to generate visualization: ${error}`);
     }
@@ -82,5 +79,40 @@ export class ProjectVisualizationService {
    */
   private escapeLabel(label: string): string {
     return label.replace(/["|{}[\]]/g, "");
+  }
+
+  private async renderMermaidDiagram(diagramPath: string, imagePath: string) {
+    const mermaidCliPath =
+      process.platform === "win32"
+        ? path.resolve(process.cwd(), "node_modules", ".bin", "mmdc.cmd")
+        : path.resolve(process.cwd(), "node_modules", ".bin", "mmdc");
+    const mermaidFunc = (cmd: string, args: string[]) =>
+      new Promise<void>((resolve, reject) => {
+        const childProcess = spawn(cmd, args, {
+          stdio: "inherit",
+          shell: false,
+        });
+        childProcess.on("error", reject);
+        childProcess.on("exit", (exitCode) => {
+          if (exitCode === 0) {
+            resolve();
+          } else {
+            reject(new Error(`Mermaid CLI exited with code ${exitCode}`));
+          }
+        });
+      });
+    try {
+      await fs.access(mermaidCliPath);
+      await mermaidFunc(mermaidCliPath, ["-i", diagramPath, "-o", imagePath]);
+    } catch {
+      await mermaidFunc("npx", [
+        "-y",
+        "@mermaid-js/mermaid-cli",
+        "-i",
+        diagramPath,
+        "-o",
+        imagePath,
+      ]);
+    }
   }
 }
