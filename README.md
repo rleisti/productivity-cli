@@ -115,15 +115,17 @@ Some description about the project
 ## Admin
 
 ```toml
-start_date = 2025-05-01
+start_date = "2025-05-01"
 
 [person]
 
 [person.me]
-availability = [ "2025-05-01 to 2025-12-20 at 7 hours" ]
+availability = ["2025-05-01 to 2025-12-20 at 7 hours"]
+roles = ["admin", "dev"]
 
 [person.you]
-availability = [ "2025-07-01 to 2025-08-31 at 3.5 hours", "2025-09-01 to 2025-12-20 at 3.5 hours" ]
+availability = ["2025-07-01 to 2025-08-31 at 3.5 hours", "2025-09-01 to 2025-12-20 at 3.5 hours"]
+roles = ["dev"]
 ```
 
 ## Tasks
@@ -140,19 +142,39 @@ owners = ["me"]
 summary = "UX"
 description = "User experience design"
 dependencies = ["T001"]
-estimate_days = { min = 5, max = 30, expected = 8 }
-owners = ["me", "you"]
+estimate_days = 15
+owners = ["dev"]
 status = "in-progress"
 
 [T004]
 summary = "Dev"
-description = "Development"
 dependencies = ["T001", "T003"]
 estimate_days = { min = 10, max = 40, expected = 15 }
-owners = ["you"]
-status = "not-started"
+owners = ["dev"]
 ```
 ````
+
+The project 'Admin' section defines the start date of the project, and the available staff. Staff members
+are defined in the `person` map by identifier. Each staff member should be provided with a list of
+availability periods, which are defined as a list of strings in the format of "YYYY-MM-DD to YYYY-MM-DD at ##.# hours".
+Each availability period is defined as a range of dates, and the number of hours available per day during that range.
+Staff members may also be assigned to roles using the `roles` array: roles allow a staff member to fulfill any project
+task that calls for the given role.
+
+The project 'Tasks' section defines the project tasks. Each task is defined by a unique identifier. Tasks may have
+the following properties:
+
+- `summary`: a short description of the task (will be visible on the graph)
+- `description`: a longer description of the task (not visible on the graph)
+- `estimate_days`: an estimate of the number of days required to complete the task. This may be specified either as
+  a single number or a map. When specified as a map, the PERT estimation method is used to calculate the estimated days.
+  The map contains the following keys:
+  - `min`: the minimum number of days required to complete the task
+  - `max`: the maximum number of days required to complete the task
+  - `expected`: the expected number of days required to complete the task`
+- `status`: the status of the task, one of "complete", "in-progress", or "not-started"
+- `owners`: a list of staff members and/or roles that are responsible for completing the task
+- `dependencies`: a list of task identifiers that must be completed before this task can be started`
 
 # Development
 
