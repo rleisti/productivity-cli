@@ -55,7 +55,7 @@ describe("ProjectFileReader", () => {
       expect(project.tasks.design.dependencies).toEqual(["research"]);
     });
 
-    it("should parse another valid project file", async () => {
+    it("should parse a valid project file with optional fields", async () => {
       const project = await reader.readProject("mobile-app");
 
       expect(project.admin.start_date).toEqual({
@@ -72,10 +72,16 @@ describe("ProjectFileReader", () => {
       expect(project.tasks.planning.dependencies).toEqual([]);
 
       expect(project.tasks.testing).toBeDefined();
+      expect(project.tasks.testing.description).toBe("");
       expect(project.tasks.testing.dependencies).toEqual([
         "ios_development",
         "android_development",
       ]);
+      expect(project.tasks.testing.estimate_days).toEqual({
+        min: 6,
+        max: 6,
+        expected: 6,
+      });
     });
   });
 });

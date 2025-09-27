@@ -138,17 +138,7 @@ export class ProjectFileReader {
       tasks[taskId] = {
         summary: (task.summary as string) || "",
         description: (task.description as string) || "",
-        estimate_days: {
-          min:
-            ((task.estimate_days as Record<string, unknown>)?.min as number) ||
-            0,
-          max:
-            ((task.estimate_days as Record<string, unknown>)?.max as number) ||
-            0,
-          expected:
-            ((task.estimate_days as Record<string, unknown>)
-              ?.expected as number) || 0,
-        },
+        estimate_days: this.parseEstimateDays(task.estimate_days),
         status: (task.status as TaskStatus) || "not-started",
         owners: Array.isArray(task.owners) ? (task.owners as string[]) : [],
         dependencies: Array.isArray(task.dependencies)
@@ -170,6 +160,35 @@ export class ProjectFileReader {
       year: parseInt(match[1]),
       month: parseInt(match[2]),
       day: parseInt(match[3]),
+    };
+  }
+
+  private parseEstimateDays(estimate: unknown): {
+    min: number;
+    max: number;
+    expected: number;
+  } {
+    if (typeof estimate === "number") {
+      return {
+        min: estimate,
+        max: estimate,
+        expected: estimate,
+      };
+    }
+
+    if (typeof estimate === "object" && estimate !== null) {
+      const estimateObj = estimate as Record<string, unknown>;
+      return {
+        min: (estimateObj.min as number) || 0,
+        max: (estimateObj.max as number) || 0,
+        expected: (estimateObj.expected as number) || 0,
+      };
+    }
+
+    return {
+      min: 0,
+      max: 0,
+      expected: 0,
     };
   }
 
