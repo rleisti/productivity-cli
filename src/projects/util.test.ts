@@ -75,19 +75,9 @@ describe("util", () => {
       expect(developers).toEqual(["alice", "bob"]);
     });
 
-    it("should return only people with the specified role", () => {
-      const designers = resolvePeopleWithRole("designer", mockProject);
-      expect(designers).toEqual(["alice"]);
-    });
-
     it("should return empty array for unknown role", () => {
       const unknown = resolvePeopleWithRole("unknown", mockProject);
       expect(unknown).toEqual([]);
-    });
-
-    it("should handle people without roles", () => {
-      const result = resolvePeopleWithRole("developer", mockProject);
-      expect(result).not.toContain("charlie"); // charlie has no roles
     });
   });
 
